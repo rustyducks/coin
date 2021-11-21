@@ -14,6 +14,9 @@ class SerialDucklink : public CommunicationBase {
 
     void sendSpeed(const Speed& speed);
 
+    void sendArmCommand(const double zPrismatic, const double zRotational, const double yRotational, const bool pumpEnabled, const bool valveOpen);
+    void sendHatCommand(const double height, const bool pumpEnabled, const bool valveOpen);
+
    protected:
     void sendMessage(protoduck::Message& message);
 

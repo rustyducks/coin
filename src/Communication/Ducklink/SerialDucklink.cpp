@@ -93,12 +93,12 @@ void SerialDucklink::sendSpeed(const Speed& speed) {
     speedCmd->set_vx(speed.vx());
     speedCmd->set_vy(speed.vy());
     speedCmd->set_vtheta(speed.vtheta());
-    msg.set_source(protoduck::Message_Agent::Message_Agent_DIFF);
     msg.set_msg_type(protoduck::Message_MsgType::Message_MsgType_COMMAND);
     sendMessage(msg);
 }
 
 void SerialDucklink::sendMessage(protoduck::Message& message) {
+    message.set_source(protoduck::Message_Agent::Message_Agent_DIFF);
     std::vector<uint8_t> toSend(message.ByteSize());
     uint8_t header[3] = {0xFF, 0xFF, 0};
     header[2] = message.ByteSize();
@@ -110,6 +110,28 @@ void SerialDucklink::sendMessage(protoduck::Message& message) {
     serial_.writeBytes(header, 3);
     serial_.writeBytes(toSend.data(), message.ByteSize());
     serial_.writeBytes(&checksum, 1);
+}
+
+void SerialDucklink::sendArmCommand(const double zPrismatic, const double zRotational, const double yRotational, const bool pumpEnabled, const bool valveOpen) {
+    protoduck::Message msg;
+    protoduck::Arm* arm = msg.mutable_arm();
+    arm->set_arm_id(protoduck::ArmID::ARM1);
+    arm->set_traz(zPrismatic);
+    arm->set_rotz(zRotational);
+    arm->set_roty(yRotational);
+    arm->set_pump(pumpEnabled);
+    arm->set_valve(valveOpen);
+    msg.set_msg_type(protoduck::Message_MsgType::Message_MsgType_COMMAND);
+    sendMessage(msg);
+}
+void SerialDucklink::sendHatCommand(const double height, const bool pumpEnabled, const bool valveOpen) {
+    protoduck::Message msg;
+    protoduck::Hat* hat = msg.mutable_hat();
+    hat->set_height(height);
+    hat->set_pump(pumpEnabled);
+    hat->set_valve(valveOpen);
+    msg.set_msg_type(protoduck::Message_MsgType::Message_MsgType_COMMAND);
+    sendMessage(msg);
 }
 
 }  // namespace rd
