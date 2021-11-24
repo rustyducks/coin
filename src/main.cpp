@@ -4,6 +4,7 @@
 #include <chrono>
 
 #include "Coin/Actuator/Arm.h"
+#include "Coin/Actuator/Hat.h"
 #include "Coin/Communication/Ducklink/SerialDucklink.h"
 #include "Coin/Communication/IvyHandler.h"
 #include "Navigation/PurePursuitControl.h"
@@ -43,22 +44,39 @@ int main(int, char**) {
 
     while (true) {
         // Update sensor values
-        for (const auto& Input : ivyHandler.getInputs()) {
-            if (Input->type() == rd::eInput::GO_TO_POINT) {
-                // auto msg = static_cast<rd::PointInput&>(*Input);
+        for (const auto& input : ivyHandler.getInputs()) {
+            if (input->type() == rd::eInput::GO_TO_POINT) {
+                // auto& msg = static_cast<rd::PointInput&>(*Input);
                 //  behavior.newTargetPoint(msg.getPoint());
-            } else if (Input->type() == rd::eInput::GO_TO_POINT_ORIENTED) {
-                // auto msg = static_cast<rd::PointOrientedInput&>(*Input);
+            } else if (input->type() == rd::eInput::GO_TO_POINT_ORIENTED) {
+                // auto& msg = static_cast<rd::PointOrientedInput&>(*Input);
                 //  behavior.newTargetOrientedPoint(msg.getPoint());
             }
         }
-        for (const auto& Input : serialDucklink.getInputs()) {
-            if (Input->type() == rd::eInput::POSITION) {
-                auto msg = static_cast<rd::PointOrientedInput&>(*Input);
+        for (const auto& input : serialMotor.getInputs()) {
+            if (input->type() == rd::eInput::POSITION) {
+                auto& msg = static_cast<rd::PointOrientedInput&>(*input);
                 robotPose = msg.getPoint();
-            } else if (Input->type() == rd::eInput::SPEED) {
-                // auto msg = static_cast<rd::SpeedInput&>(*Input);
+            } else if (input->type() == rd::eInput::SPEED) {
+                // auto& msg = static_cast<rd::SpeedInput&>(*Input);
                 // robotSpeed = msg.getSpeed();
+            } else if (input->type() == rd::eInput::ARM_STATUS) {
+                auto& msg = static_cast<rd::ArmInput&>(*input);
+                arm.updateState(msg);
+            } else if (input->type() == rd::eInput::HAT_STATUS) {
+            }
+        }
+        for (const auto& input : serialDucklink.getInputs()) {
+            if (input->type() == rd::eInput::POSITION) {
+                auto& msg = static_cast<rd::PointOrientedInput&>(*input);
+                robotPose = msg.getPoint();
+            } else if (input->type() == rd::eInput::SPEED) {
+                // auto& msg = static_cast<rd::SpeedInput&>(*Input);
+                // robotSpeed = msg.getSpeed();
+            } else if (input->type() == rd::eInput::ARM_STATUS) {
+                auto& msg = static_cast<rd::ArmInput&>(*input);
+                arm.updateState(msg);
+            } else if (input->type() == rd::eInput::HAT_STATUS) {
             }
         }
 

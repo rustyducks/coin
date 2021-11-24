@@ -77,6 +77,16 @@ std::vector<std::unique_ptr<Input>> SerialDucklink::getInputs() {
                                 std::vector<std::unique_ptr<Input>> toReturn(1);
                                 toReturn[0] = std::make_unique<SpeedInput>(eInput::SPEED, s);
                                 return toReturn;
+                            } else if (msg.has_arm()) {
+                                std::vector<std::unique_ptr<Input>> toReturn(1);
+                                toReturn[0] = std::make_unique<ArmInput>(eInput::ARM_STATUS, msg.arm().traz(), msg.arm().rotz(), msg.arm().roty(),
+                                                                         msg.arm().pump(), msg.arm().valve(), msg.arm().pressure());
+                                return toReturn;
+                            } else if (msg.has_hat()) {
+                                std::vector<std::unique_ptr<Input>> toReturn(1);
+                                toReturn[0] = std::make_unique<HatInput>(eInput::HAT_STATUS, msg.hat().height(), msg.hat().pump(), msg.hat().valve(),
+                                                                         msg.hat().pressure());
+                                return toReturn;
                             }
                         }
                     }

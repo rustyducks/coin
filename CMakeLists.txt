@@ -31,7 +31,7 @@ FetchContent_MakeAvailable(NoWay)
 add_subdirectory(deps)
 
 add_executable(Coin src/main.cpp src/Behavior/Slave.cpp src/Robot.cpp src/Communication/IvyHandler.cpp 
-            src/Communication/Ducklink/SerialDucklink.cpp src/Actuator/Arm.cpp)
+            src/Communication/Ducklink/SerialDucklink.cpp src/Actuator/Arm.cpp src/Actuator/Hat.cpp)
 target_include_directories(Coin PUBLIC include ${Serialib_INCLUDE_DIR})
 target_link_libraries(Coin PUBLIC GeometryTools Navigation NoWay Serialib Protoduck)
 set_target_properties(Coin PROPERTIES CXX_STANDARD 14)

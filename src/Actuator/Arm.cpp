@@ -3,29 +3,37 @@
 namespace rd {
 Arm::Arm(SerialDucklink& ducklink)
     : SerialDucklinkActuator(ducklink),
+      lastCommand_({{{eJoint::Z_PRISMATIC, 0.}, {eJoint::Z_ROTATIONAL, 0.}, {eJoint::Y_ROTATIONAL, 0.}}, false, false}),
       position_({{eJoint::Z_PRISMATIC, 0.}, {eJoint::Z_ROTATIONAL, 0.}, {eJoint::Y_ROTATIONAL, 0.}}),
       pumpEnabled_(false),
-      valveOpen_(false) {}
+      valveOpen_(false),
+      pressure_(0.) {}
 
 void Arm::setJoint(const eJoint& joint, const double value) {
-    double zPri, zRot, yRot;
-    zPri = position_.at(eJoint::Z_PRISMATIC);
-    zRot = position_.at(eJoint::Z_ROTATIONAL);
-    yRot = position_.at(eJoint::Y_ROTATIONAL);
-    switch (joint) {
-        case eJoint::Z_PRISMATIC:
-            zPri = value;
-            break;
-        case eJoint::Z_ROTATIONAL:
-            zRot = value;
-            break;
-        case eJoint::Y_ROTATIONAL:
-            yRot = value;
-            break;
-        default:
-            break;
-    }
-    ducklink_.sendArmCommand(zPri, zRot, yRot, pumpEnabled_, valveOpen_);
+    lastCommand_.position.at(joint) = value;
+    ducklink_.sendArmCommand(lastCommand_.position.at(eJoint::Z_PRISMATIC), lastCommand_.position.at(eJoint::Z_ROTATIONAL),
+                             lastCommand_.position.at(eJoint::Y_ROTATIONAL), lastCommand_.pumpEnabled, lastCommand_.valveOpen);
+}
+
+void Arm::startPump(bool enable) {
+    lastCommand_.pumpEnabled = enable;
+    ducklink_.sendArmCommand(lastCommand_.position.at(eJoint::Z_PRISMATIC), lastCommand_.position.at(eJoint::Z_ROTATIONAL),
+                             lastCommand_.position.at(eJoint::Y_ROTATIONAL), lastCommand_.pumpEnabled, lastCommand_.valveOpen);
+}
+
+void Arm::openValve(bool open) {
+    lastCommand_.valveOpen = open;
+    ducklink_.sendArmCommand(lastCommand_.position.at(eJoint::Z_PRISMATIC), lastCommand_.position.at(eJoint::Z_ROTATIONAL),
+                             lastCommand_.position.at(eJoint::Y_ROTATIONAL), lastCommand_.pumpEnabled, lastCommand_.valveOpen);
+}
+
+void Arm::updateState(const ArmInput& input) {
+    position_.at(eJoint::Z_PRISMATIC) = input.zPrismatic();
+    position_.at(eJoint::Z_ROTATIONAL) = input.zRotational();
+    position_.at(eJoint::Y_ROTATIONAL) = input.yRotational();
+    pumpEnabled_ = input.pumpOn();
+    valveOpen_ = input.valveOpen();
+    pressure_ = input.pressure();
 }
 
 }  // namespace rd
