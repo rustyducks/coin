@@ -23,4 +23,8 @@ std::vector<std::unique_ptr<Input>> IvyHandler::getInputs() {
     pointOrientedInputs_.clear();
     return toReturn;
 }
+void IvyHandler::sendSpeed(const Speed&) { return; }
+void IvyHandler::sendPoseReport(const PointOriented&) { return; }
+void IvyHandler::sendArmCommand(const double, const double, const double, const bool, const bool) { return; }
+void IvyHandler::sendHatCommand(const double, const bool, const bool) { return; }
 }  // namespace rd

@@ -12,10 +12,10 @@ class SerialDucklink : public CommunicationBase {
 
     virtual std::vector<std::unique_ptr<rd::Input>> getInputs() override;
 
-    void sendSpeed(const Speed& speed);
-
-    void sendArmCommand(const double zPrismatic, const double zRotational, const double yRotational, const bool pumpEnabled, const bool valveOpen);
-    void sendHatCommand(const double height, const bool pumpEnabled, const bool valveOpen);
+    void sendSpeed(const Speed& speed) override;
+    void sendPoseReport(const PointOriented& pose) override;
+    void sendArmCommand(const double zPrismatic, const double zRotational, const double yRotational, const bool pumpEnabled, const bool valveOpen) override;
+    void sendHatCommand(const double height, const bool pumpEnabled, const bool valveOpen) override;
 
    protected:
     void sendMessage(protoduck::Message& message);

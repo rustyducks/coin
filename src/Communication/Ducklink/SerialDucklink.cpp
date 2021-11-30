@@ -107,6 +107,16 @@ void SerialDucklink::sendSpeed(const Speed& speed) {
     sendMessage(msg);
 }
 
+void SerialDucklink::sendPoseReport(const PointOriented& pose) {
+    protoduck::Message msg;
+    auto* poseReport = msg.mutable_pos();
+    poseReport->set_x(pose.x());
+    poseReport->set_y(pose.y());
+    poseReport->set_theta(pose.theta().value());
+    msg.set_msg_type(protoduck::Message_MsgType::Message_MsgType_STATUS);
+    sendMessage(msg);
+}
+
 void SerialDucklink::sendMessage(protoduck::Message& message) {
     message.set_source(protoduck::Message_Agent::Message_Agent_DIFF);
     std::vector<uint8_t> toSend(message.ByteSize());

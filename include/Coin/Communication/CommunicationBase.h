@@ -87,6 +87,10 @@ class HatInput : public Input {
 class CommunicationBase {
    public:
     virtual std::vector<std::unique_ptr<Input>> getInputs() = 0;
+    virtual void sendSpeed(const Speed& speed) = 0;
+    virtual void sendPoseReport(const PointOriented& pose) = 0;
+    virtual void sendArmCommand(const double zPrismatic, const double zRotational, const double yRotational, const bool pumpEnabled, const bool valveOpen) = 0;
+    virtual void sendHatCommand(const double height, const bool pumpEnabled, const bool valveOpen) = 0;
 };
 }  // namespace rd
 

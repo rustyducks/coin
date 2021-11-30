@@ -13,6 +13,11 @@ class IvyHandler : public CommunicationBase {
 
     void onGoToOrient(const PointOriented& point);
     void onGoToPoint(const Point& point);
+    virtual void sendSpeed(const Speed& speed) override;
+    virtual void sendPoseReport(const PointOriented& pose) override;
+    virtual void sendArmCommand(const double zPrismatic, const double zRotational, const double yRotational, const bool pumpEnabled,
+                                const bool valveOpen) override;
+    virtual void sendHatCommand(const double height, const bool pumpEnabled, const bool valveOpen) override;
 
    protected:
     std::vector<PointOrientedInput> pointOrientedInputs_;
