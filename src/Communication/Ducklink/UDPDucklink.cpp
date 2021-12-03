@@ -5,7 +5,7 @@
 #include <cstring>
 
 namespace rd {
-UDPDucklink::UDPDucklink(const std::string& addr, int port) : fPort_(port), fAddr_(addr) {
+UDPDucklink::UDPDucklink(const std::string& addr, int port, bool toListen) : fPort_(port), fAddr_(addr) {
     char decimal_port[16];
     snprintf(decimal_port, sizeof(decimal_port), "%d", fPort_);
     decimal_port[sizeof(decimal_port) / sizeof(decimal_port[0]) - 1] = '\0';
@@ -18,10 +18,13 @@ UDPDucklink::UDPDucklink(const std::string& addr, int port) : fPort_(port), fAdd
     if (r != 0 || fAddrinfo_ == NULL) {
         throw std::runtime_error(("invalid address or port: \"" + addr + ":" + decimal_port + "\"").c_str());
     }
-    fSocket_ = socket(fAddrinfo_->ai_family, SOCK_DGRAM | SOCK_CLOEXEC, IPPROTO_UDP);
+    fSocket_ = socket(fAddrinfo_->ai_family, SOCK_DGRAM | SOCK_NONBLOCK, IPPROTO_UDP);
     if (fSocket_ == -1) {
         freeaddrinfo(fAddrinfo_);
         throw std::runtime_error(("could not create socket for: \"" + addr + ":" + decimal_port + "\"").c_str());
+    }
+    if (toListen) {
+        bind(fSocket_, fAddrinfo_->ai_addr, fAddrinfo_->ai_addrlen);
     }
 }
 
@@ -50,7 +53,34 @@ void UDPDucklink::sendPointOrientedJson(const PointOriented& point, const std::s
     send(str.c_str(), str.size());
 }
 
-std::vector<std::unique_ptr<Input>> UDPDucklink::getInputs() { return {}; }
+std::vector<std::unique_ptr<Input>> UDPDucklink::getInputs() {
+    uint8_t in[256];
+    protoduck::Message msg;
+    std::vector<std::unique_ptr<Input>> toReturn;
+    int nbRead = 0;
+    while ((nbRead = recv(fSocket_, in, 256, 0)) > 0) {
+        for (int i = 0; i < nbRead; i++) {
+            if (ducklinkReceiver_.pushNewOct(in[i], msg)) {
+                if (msg.msg_type() == protoduck::Message_MsgType::Message_MsgType_STATUS) {
+                    if (msg.has_pos()) {
+                        PointOriented p(msg.pos().x(), msg.pos().y(), msg.pos().theta());
+                        toReturn.push_back(std::make_unique<PointOrientedInput>(eInput::POSITION_REPORT, p));
+                    } else if (msg.has_speed()) {
+                        Speed s(msg.speed().vx(), msg.speed().vy(), msg.speed().vtheta());
+                        toReturn.push_back(std::make_unique<SpeedInput>(eInput::SPEED_REPORT, s));
+                    } else if (msg.has_arm()) {
+                        toReturn.push_back(std::make_unique<ArmInput>(eInput::ARM_STATUS, msg.arm().traz(), msg.arm().rotz(), msg.arm().roty(),
+                                                                      msg.arm().pump(), msg.arm().valve(), msg.arm().pressure()));
+                    } else if (msg.has_hat()) {
+                        toReturn.push_back(
+                            std::make_unique<HatInput>(eInput::HAT_STATUS, msg.hat().height(), msg.hat().pump(), msg.hat().valve(), msg.hat().pressure()));
+                    }
+                }
+            }
+        }
+    }
+    return toReturn;
+}
 
 void UDPDucklink::sendSpeed(const Speed& speed) {
     protoduck::Message msg;

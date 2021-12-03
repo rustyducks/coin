@@ -2,6 +2,7 @@
 #define SERIALDUCKLINK_H
 
 #include "Coin/Communication/CommunicationBase.h"
+#include "Coin/Communication/Ducklink/DucklinkReceiver.h"
 #include "generated/messages.pb.h"
 #include "serialib.h"
 
@@ -19,14 +20,8 @@ class SerialDucklink : public CommunicationBase {
 
    protected:
     void sendMessage(protoduck::Message& message);
-
-    enum eReceiveState { START_1FF, START_2FF, LEN, PAYLOAD, CHECKSUM };
-    eReceiveState receiveState_;
-    uint8_t expectedLen_;
-    uint8_t payloadRead_;
-    uint8_t computedChecksum_;
     serialib serial_;
-    uint8_t constructingPayload_[256];
+    DucklinkReceiver ducklinkReceiver_;
 };
 }  // namespace rd
 

@@ -1,100 +1,46 @@
 #include "Coin/Communication/Ducklink/SerialDucklink.h"
 
 namespace rd {
-SerialDucklink::SerialDucklink(const std::string& serialPath, const unsigned int baudrate) : receiveState_(eReceiveState::START_1FF) {
+SerialDucklink::SerialDucklink(const std::string& serialPath, const unsigned int baudrate) {
     if (serial_.openDevice(serialPath.c_str(), baudrate) != 1) {
         throw std::runtime_error("Cannot open serial");
     }
 }
 
 std::vector<std::unique_ptr<Input>> SerialDucklink::getInputs() {
+    std::vector<std::unique_ptr<Input>> toReturn;
     protoduck::Message msg;
     char rcvChar;
     uint8_t rcv;
-    if (receiveState_ == eReceiveState::START_1FF) {
-        if (serial_.available()) {
-            if (serial_.readChar(&rcvChar) == 1) {
-                rcv = static_cast<uint8_t>(rcvChar);
-                if (rcv == 0xFF) {
-                    receiveState_ = eReceiveState::START_2FF;
-                }
-            }
-        }
-    }
-    if (receiveState_ == eReceiveState::START_2FF) {
-        if (serial_.available()) {
-            if (serial_.readChar(&rcvChar) == 1) {
-                rcv = static_cast<uint8_t>(rcvChar);
-                if (rcv == 0xFF) {
-                    receiveState_ = eReceiveState::LEN;
-                } else {
-                    receiveState_ = eReceiveState::START_1FF;
-                }
-            }
-        }
-    }
-    if (receiveState_ == eReceiveState::LEN) {
-        if (serial_.available()) {
-            if (serial_.readChar(&rcvChar) == 1) {
-                rcv = static_cast<uint8_t>(rcvChar);
-                expectedLen_ = rcv;
-                payloadRead_ = 0;
-                computedChecksum_ = 0;
-                receiveState_ = eReceiveState::PAYLOAD;
-            }
-        }
-    }
-    if (receiveState_ == eReceiveState::PAYLOAD) {
-        while (serial_.available()) {
-            if (serial_.readChar(&rcvChar) == 1) {
-                rcv = static_cast<uint8_t>(rcvChar);
-                expectedLen_--;
-                constructingPayload_[payloadRead_++] = rcv;
-                computedChecksum_ ^= rcv;
-                if (expectedLen_ == 0) {
-                    receiveState_ = eReceiveState::CHECKSUM;
-                    break;
-                }
-            }
-        }
-    }
-    if (receiveState_ == eReceiveState::CHECKSUM) {
-        if (serial_.available()) {
-            if (serial_.readChar(&rcvChar) == 1) {
-                rcv = static_cast<uint8_t>(rcvChar);
-                receiveState_ = eReceiveState::START_1FF;
-                if (computedChecksum_ == rcv) {
-                    msg.Clear();
-                    if (msg.ParseFromArray(constructingPayload_, payloadRead_)) {
-                        if (msg.msg_type() == protoduck::Message_MsgType::Message_MsgType_STATUS) {
-                            if (msg.has_pos()) {
-                                PointOriented p(msg.pos().x(), msg.pos().y(), msg.pos().theta());
-                                std::vector<std::unique_ptr<Input>> toReturn(1);
-                                toReturn[0] = std::make_unique<PointOrientedInput>(eInput::POSITION, p);
-                                return toReturn;
-                            } else if (msg.has_speed()) {
-                                Speed s(msg.speed().vx(), msg.speed().vy(), msg.speed().vtheta());
-                                std::vector<std::unique_ptr<Input>> toReturn(1);
-                                toReturn[0] = std::make_unique<SpeedInput>(eInput::SPEED, s);
-                                return toReturn;
-                            } else if (msg.has_arm()) {
-                                std::vector<std::unique_ptr<Input>> toReturn(1);
-                                toReturn[0] = std::make_unique<ArmInput>(eInput::ARM_STATUS, msg.arm().traz(), msg.arm().rotz(), msg.arm().roty(),
-                                                                         msg.arm().pump(), msg.arm().valve(), msg.arm().pressure());
-                                return toReturn;
-                            } else if (msg.has_hat()) {
-                                std::vector<std::unique_ptr<Input>> toReturn(1);
-                                toReturn[0] = std::make_unique<HatInput>(eInput::HAT_STATUS, msg.hat().height(), msg.hat().pump(), msg.hat().valve(),
-                                                                         msg.hat().pressure());
-                                return toReturn;
-                            }
-                        }
+    while (serial_.available()) {
+        if (serial_.readChar(&rcvChar) == 1) {
+            rcv = static_cast<uint8_t>(rcvChar);
+            if (ducklinkReceiver_.pushNewOct(rcv, msg)) {
+                // A message is complete
+                if (msg.msg_type() == protoduck::Message_MsgType::Message_MsgType_STATUS) {
+                    if (msg.has_pos()) {
+                        PointOriented p(msg.pos().x(), msg.pos().y(), msg.pos().theta());
+                        toReturn.push_back(std::make_unique<PointOrientedInput>(eInput::POSITION_REPORT, p));
+                    } else if (msg.has_speed()) {
+                        Speed s(msg.speed().vx(), msg.speed().vy(), msg.speed().vtheta());
+                        toReturn.push_back(std::make_unique<SpeedInput>(eInput::SPEED_REPORT, s));
+                    } else if (msg.has_arm()) {
+                        toReturn.push_back(std::make_unique<ArmInput>(eInput::ARM_STATUS, msg.arm().traz(), msg.arm().rotz(), msg.arm().roty(),
+                                                                      msg.arm().pump(), msg.arm().valve(), msg.arm().pressure()));
+                    } else if (msg.has_hat()) {
+                        toReturn.push_back(
+                            std::make_unique<HatInput>(eInput::HAT_STATUS, msg.hat().height(), msg.hat().pump(), msg.hat().valve(), msg.hat().pressure()));
+                    }
+                } else if (msg.msg_type() == protoduck::Message_MsgType::Message_MsgType_COMMAND) {
+                    if (msg.has_speed()) {
+                        Speed s(msg.speed().vx(), msg.speed().vy(), msg.speed().vtheta());
+                        toReturn.push_back(std::make_unique<SpeedInput>(eInput::SPEED_COMMAND, s));
                     }
                 }
             }
         }
     }
-    return {};
+    return toReturn;
 }
 
 void SerialDucklink::sendSpeed(const Speed& speed) {

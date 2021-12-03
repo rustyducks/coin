@@ -8,6 +8,7 @@
 #include <stdexcept>
 
 #include "Coin/Communication/CommunicationBase.h"
+#include "Coin/Communication/Ducklink/DucklinkReceiver.h"
 #include "Coin/Communication/JSONInterface.h"
 #include "GeometryTools/Point.h"
 #include "GeometryTools/Speed.h"
@@ -17,7 +18,7 @@ namespace rd {
 
 class UDPDucklink : CommunicationBase, JsonInterface {
    public:
-    UDPDucklink(const std::string &addr, int port);
+    UDPDucklink(const std::string &addr, int port, bool toListen = false);
     ~UDPDucklink();
 
     int getSocket() const;
@@ -42,6 +43,7 @@ class UDPDucklink : CommunicationBase, JsonInterface {
     int fPort_;
     std::string fAddr_;
     struct addrinfo *fAddrinfo_;
+    DucklinkReceiver ducklinkReceiver_;
 };
 }  // namespace rd
 
