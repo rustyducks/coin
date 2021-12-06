@@ -3,12 +3,12 @@
 
 #include <unordered_map>
 
-#include "Coin/Actuator/SerialDucklinkActuator.h"
+#include "Coin/Actuator/ActuatorBase.h"
 
 namespace rd {
-class Arm : public SerialDucklinkActuator {
+class Arm : public ActuatorBase<ArmInput> {
    public:
-    Arm(SerialDucklink& ducklink);
+    Arm(ArmCommandSenderInterface& sender);
 
     enum eJoint { Z_PRISMATIC, Z_ROTATIONAL, Y_ROTATIONAL };
     void setJoint(const eJoint& joint, const double value);
@@ -17,7 +17,7 @@ class Arm : public SerialDucklinkActuator {
     void openValve(bool open = true);
     double pressure() const { return pressure_; }
 
-    void updateState(const ArmInput& input);
+    void updateState(const ArmInput& input) override;
 
    protected:
     struct sArmCommand {
@@ -30,6 +30,7 @@ class Arm : public SerialDucklinkActuator {
     bool pumpEnabled_;
     bool valveOpen_;
     double pressure_;
+    ArmCommandSenderInterface& sender_;
 };
 }  // namespace rd
 

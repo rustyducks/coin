@@ -1,22 +1,22 @@
 #include "Coin/Actuator/Hat.h"
 
 namespace rd {
-Hat::Hat(SerialDucklink& ducklink)
-    : SerialDucklinkActuator(ducklink), lastCommand_({0., false, false}), height_(0.), pumpEnabled_(false), valveOpen_(false), pressure_(0.) {}
+Hat::Hat(HatCommandSenderInterface& sender)
+    : lastCommand_({0., false, false}), height_(0.), pumpEnabled_(false), valveOpen_(false), pressure_(0.), sender_(sender) {}
 
 void Hat::setHeight(const double height) {
     lastCommand_.height = height;
-    ducklink_.sendHatCommand(lastCommand_.height, lastCommand_.pumpEnabled, lastCommand_.valveOpen);
+    sender_.sendHatCommand(lastCommand_.height, lastCommand_.pumpEnabled, lastCommand_.valveOpen);
 }
 
 void Hat::startPump(const bool enable) {
     lastCommand_.pumpEnabled = enable;
-    ducklink_.sendHatCommand(lastCommand_.height, lastCommand_.pumpEnabled, lastCommand_.valveOpen);
+    sender_.sendHatCommand(lastCommand_.height, lastCommand_.pumpEnabled, lastCommand_.valveOpen);
 }
 
 void Hat::openValve(const bool open) {
     lastCommand_.valveOpen = open;
-    ducklink_.sendHatCommand(lastCommand_.height, lastCommand_.pumpEnabled, lastCommand_.valveOpen);
+    sender_.sendHatCommand(lastCommand_.height, lastCommand_.pumpEnabled, lastCommand_.valveOpen);
 }
 
 void Hat::updateState(const HatInput& input) {

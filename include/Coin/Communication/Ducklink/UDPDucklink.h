@@ -7,6 +7,7 @@
 
 #include <stdexcept>
 
+#include "Coin/Actuator/ActuatorBase.h"
 #include "Coin/Communication/CommunicationBase.h"
 #include "Coin/Communication/Ducklink/DucklinkReceiver.h"
 #include "Coin/Communication/JSONInterface.h"
@@ -16,7 +17,7 @@
 
 namespace rd {
 
-class UDPDucklink : CommunicationBase, JsonInterface {
+class UDPDucklink : CommunicationBase, JsonInterface, ArmCommandSenderInterface, HatCommandSenderInterface {
    public:
     UDPDucklink(const std::string &addr, int port, bool toListen = false);
     ~UDPDucklink();

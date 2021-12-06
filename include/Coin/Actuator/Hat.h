@@ -1,18 +1,17 @@
 #ifndef HAT_H
 #define HAT_H
 
-#include "Coin/Actuator/SerialDucklinkActuator.h"
-
+#include "Coin/Actuator/ActuatorBase.h"
 namespace rd {
-class Hat : public SerialDucklinkActuator {
+class Hat : public ActuatorBase<HatInput> {
    public:
-    Hat(SerialDucklink& ducklink);
+    Hat(HatCommandSenderInterface& sender);
     void setHeight(const double height);
     void startPump(const bool enable = true);
     void openValve(const bool open = true);
     double getHeight() { return height_; }
 
-    void updateState(const HatInput& input);
+    void updateState(const HatInput& input) override;
 
    protected:
     struct sHatCommand {
@@ -25,6 +24,7 @@ class Hat : public SerialDucklinkActuator {
     bool pumpEnabled_;
     bool valveOpen_;
     double pressure_;
+    HatCommandSenderInterface& sender_;
 };
 }  // namespace rd
 

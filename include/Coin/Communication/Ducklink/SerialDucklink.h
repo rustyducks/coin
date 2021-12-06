@@ -1,13 +1,13 @@
 #ifndef SERIALDUCKLINK_H
 #define SERIALDUCKLINK_H
 
+#include "Coin/Actuator/ActuatorBase.h"
 #include "Coin/Communication/CommunicationBase.h"
 #include "Coin/Communication/Ducklink/DucklinkReceiver.h"
 #include "generated/messages.pb.h"
 #include "serialib.h"
-
 namespace rd {
-class SerialDucklink : public CommunicationBase {
+class SerialDucklink : public CommunicationBase, ArmCommandSenderInterface, HatCommandSenderInterface {
    public:
     SerialDucklink(const std::string& serialPath, const unsigned int baudrate);
 

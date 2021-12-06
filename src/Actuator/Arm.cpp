@@ -1,30 +1,30 @@
 #include "Coin/Actuator/Arm.h"
 
 namespace rd {
-Arm::Arm(SerialDucklink& ducklink)
-    : SerialDucklinkActuator(ducklink),
-      lastCommand_({{{eJoint::Z_PRISMATIC, 0.}, {eJoint::Z_ROTATIONAL, 0.}, {eJoint::Y_ROTATIONAL, 0.}}, false, false}),
+Arm::Arm(ArmCommandSenderInterface& sender)
+    : lastCommand_({{{eJoint::Z_PRISMATIC, 0.}, {eJoint::Z_ROTATIONAL, 0.}, {eJoint::Y_ROTATIONAL, 0.}}, false, false}),
       position_({{eJoint::Z_PRISMATIC, 0.}, {eJoint::Z_ROTATIONAL, 0.}, {eJoint::Y_ROTATIONAL, 0.}}),
       pumpEnabled_(false),
       valveOpen_(false),
-      pressure_(0.) {}
+      pressure_(0.),
+      sender_(sender) {}
 
 void Arm::setJoint(const eJoint& joint, const double value) {
     lastCommand_.position.at(joint) = value;
-    ducklink_.sendArmCommand(lastCommand_.position.at(eJoint::Z_PRISMATIC), lastCommand_.position.at(eJoint::Z_ROTATIONAL),
-                             lastCommand_.position.at(eJoint::Y_ROTATIONAL), lastCommand_.pumpEnabled, lastCommand_.valveOpen);
+    sender_.sendArmCommand(lastCommand_.position.at(eJoint::Z_PRISMATIC), lastCommand_.position.at(eJoint::Z_ROTATIONAL),
+                           lastCommand_.position.at(eJoint::Y_ROTATIONAL), lastCommand_.pumpEnabled, lastCommand_.valveOpen);
 }
 
 void Arm::startPump(bool enable) {
     lastCommand_.pumpEnabled = enable;
-    ducklink_.sendArmCommand(lastCommand_.position.at(eJoint::Z_PRISMATIC), lastCommand_.position.at(eJoint::Z_ROTATIONAL),
-                             lastCommand_.position.at(eJoint::Y_ROTATIONAL), lastCommand_.pumpEnabled, lastCommand_.valveOpen);
+    sender_.sendArmCommand(lastCommand_.position.at(eJoint::Z_PRISMATIC), lastCommand_.position.at(eJoint::Z_ROTATIONAL),
+                           lastCommand_.position.at(eJoint::Y_ROTATIONAL), lastCommand_.pumpEnabled, lastCommand_.valveOpen);
 }
 
 void Arm::openValve(bool open) {
     lastCommand_.valveOpen = open;
-    ducklink_.sendArmCommand(lastCommand_.position.at(eJoint::Z_PRISMATIC), lastCommand_.position.at(eJoint::Z_ROTATIONAL),
-                             lastCommand_.position.at(eJoint::Y_ROTATIONAL), lastCommand_.pumpEnabled, lastCommand_.valveOpen);
+    sender_.sendArmCommand(lastCommand_.position.at(eJoint::Z_PRISMATIC), lastCommand_.position.at(eJoint::Z_ROTATIONAL),
+                           lastCommand_.position.at(eJoint::Y_ROTATIONAL), lastCommand_.pumpEnabled, lastCommand_.valveOpen);
 }
 
 void Arm::updateState(const ArmInput& input) {
