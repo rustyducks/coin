@@ -84,9 +84,12 @@ class HatInput : public Input {
     bool pumpOn_, valveOpen_;
 };
 
-class CommunicationBase {
+class CommunicationInputBase {
    public:
     virtual std::vector<std::unique_ptr<Input>> getInputs() = 0;
+};
+
+class CommunicationOutputBase {
     virtual void sendSpeed(const Speed& speed) = 0;
     virtual void sendPoseReport(const PointOriented& pose) = 0;
 };

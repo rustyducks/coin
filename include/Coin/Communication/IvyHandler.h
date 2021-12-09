@@ -5,7 +5,7 @@
 #include "Navigation/Communication/Ivy.h"
 
 namespace rd {
-class IvyHandler : public CommunicationBase {
+class IvyHandler : public CommunicationInputBase, public CommunicationOutputBase {
    public:
     IvyHandler();
 

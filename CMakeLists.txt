@@ -27,8 +27,6 @@ if (NOT ${Navigation_FOUND})
   FetchContent_MakeAvailable(Navigation)
 endif()
 
-message("${GeometryTools_LIBRARIES}")
-
 find_package(NoWay)
 if (NOT ${NoWay_FOUND})
   message("'NoWay' not found on local installation, retrieveing it from Github.")
@@ -40,12 +38,24 @@ if (NOT ${NoWay_FOUND})
   FetchContent_MakeAvailable(NoWay)
 endif()
 
-add_subdirectory(deps)
+find_package(Ducklink)
+find_package(Protoduck)
+if (NOT ${Ducklink_FOUND})
+  message("'Ducklink' not found on local installation, retrieveing it from Github.")
+  FetchContent_Declare(
+    Ducklink
+    GIT_REPOSITORY https://github.com/rustyducks/ducklink_cpp.git
+    GIT_TAG master
+  )
+  FetchContent_MakeAvailable(Ducklink)
+endif()
+
+
 
 add_executable(Coin src/main.cpp src/Behavior/Slave.cpp src/Robot.cpp src/Communication/IvyHandler.cpp 
-            src/Communication/Ducklink/SerialDucklink.cpp src/Actuator/Arm.cpp src/Actuator/Hat.cpp src/Communication/Ducklink/UDPDucklink.cpp)
-target_include_directories(Coin PUBLIC include ${Serialib_INCLUDE_DIR})
-target_link_libraries(Coin PUBLIC GeometryTools Navigation Serialib Protoduck)
+        src/Actuator/Arm.cpp src/Actuator/Hat.cpp src/Communication/Ducklink/UDPDucklinkCommunication.cpp src/Communication/UDPJson.cpp)
+target_include_directories(Coin PUBLIC include)
+target_link_libraries(Coin PUBLIC GeometryTools Navigation Ducklink Protoduck)
 set_target_properties(Coin PROPERTIES CXX_STANDARD 14)
 target_compile_options(Coin PRIVATE -Wall -Wextra -Wpedantic -Werror)
 

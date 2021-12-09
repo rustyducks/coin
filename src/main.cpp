@@ -1,3 +1,5 @@
+#include <unistd.h>
+
 #include <iostream>
 
 //#include "Coin/Behavior/Slave.h"
@@ -6,9 +8,9 @@
 
 #include "Coin/Actuator/Arm.h"
 #include "Coin/Actuator/Hat.h"
-#include "Coin/Communication/Ducklink/SerialDucklink.h"
-#include "Coin/Communication/Ducklink/UDPDucklink.h"
+#include "Coin/Communication/Ducklink/UDPDucklinkCommunication.h"
 #include "Coin/Communication/IvyHandler.h"
+#include "Coin/Communication/UDPJson.h"
 #include "GeometryTools/Point.h"
 #include "Navigation/PurePursuitControl.h"
 
@@ -18,9 +20,9 @@ int main(int, char**) {
     rd::IvyHandler ivyHandler;
     // rd::SerialDucklink serialDucklink("/dev/ttyUSB0", 57600);
     // rd::SerialDucklink motorDucklink("/dev/ttyUSB0", 57600);
-    rd::UDPDucklink udpClientJugglerPlot("127.0.0.1", 9870);
-    rd::UDPDucklink udpClientAnatidae("127.0.0.1", 8888);
-    rd::UDPDucklink udpClientAnatidaeServer("0.0.0.0", 9999, true);
+    rd::UDPJson udpClientJugglerPlot("127.0.0.1", 9870);
+    rd::UDPDucklinkOutput udpClientAnatidae("127.0.0.1", 8888);
+    rd::UDPDucklinkInput udpClientAnatidaeServer("0.0.0.0", 9999);
 
     rd::PointOriented robotPose({1500., 1000., 0.});
     // rd::Arm arm(serialDucklink);
@@ -54,7 +56,9 @@ int main(int, char**) {
 
     while (true) {
         // Update sensor values
-        udpClientAnatidaeServer.getInputs();
+        for (const auto& input : udpClientAnatidaeServer.getInputs()) {
+            std::cout << input->type() << std::endl;
+        }
         /*        for (const auto& input : ivyHandler.getInputs()) {
                     if (input->type() == rd::eInput::GO_TO_POINT) {
                         // auto& msg = static_cast<rd::PointInput&>(*Input);
