@@ -9,7 +9,6 @@
 #include "Coin/Actuator/Arm.h"
 #include "Coin/Actuator/Hat.h"
 #include "Coin/Communication/Ducklink/UDPDucklinkCommunication.h"
-#include "Coin/Communication/IvyHandler.h"
 #include "Coin/Communication/UDPJson.h"
 #include "GeometryTools/Point.h"
 #include "Navigation/PurePursuitControl.h"
@@ -17,9 +16,9 @@
 int main(int, char**) {
     std::cout << "Coucou" << std::endl;
 
-    rd::IvyHandler ivyHandler;
-    // rd::SerialDucklink serialDucklink("/dev/ttyUSB0", 57600);
-    // rd::SerialDucklink motorDucklink("/dev/ttyUSB0", 57600);
+    // rd::IvyHandler ivyHandler;
+    //  rd::SerialDucklink serialDucklink("/dev/ttyUSB0", 57600);
+    //  rd::SerialDucklink motorDucklink("/dev/ttyUSB0", 57600);
     rd::UDPJson udpClientJugglerPlot("127.0.0.1", 9870);
     rd::UDPDucklinkOutput udpClientAnatidae("127.0.0.1", 8888);
     rd::UDPDucklinkInput udpClientAnatidaeServer("0.0.0.0", 9999);
@@ -39,7 +38,13 @@ int main(int, char**) {
     std::default_random_engine generator;
 
     rd::PurePursuitControl pp(robotParams, 2, 100.);
-    rd::Path path = rd::Trajectory::lissajouPath(robotPose, 200, 750, 500);
+    // rd::Path path = rd::Trajectory::lissajouPath(robotPose, 200, 750, 500);
+    // m 1500,1000 c -402.1505,-531.48472 -843.09906,340.3162 -213.2185,377.6856 784.9207,46.5676 -190.6885,833.5373 722.989,846.7716
+    // rd::Path path1 = rd::Trajectory::cubicBezier(robotPose, {1098., 468.5}, {657., 1340.}, {1287., 1377., 0.}, 500);
+    // rd::Path path2 = rd::Trajectory::cubicBezier(path1.last(), {2072., 1424.}, {1096., 2211.}, {2010., 2224., 0.}, 500);
+    //
+    // rd::Path path = path1 + path2;
+    rd::Path path = rd::Path::fromSVG("../dessin.svg", 100);
     std::cout << path.at(path.size() - 1) << std::endl;
     rd::Trajectory traj = path.computeSpeeds(robotParams.maxLinearSpeed, robotParams.maxRotationalSpeed, 50., robotParams.maxLinearAcceleration);
     // rd::Trajectory traj = rd::Path({{0.0, 0.0, 0.0}, {800.0, 0.0, 0.0}, {800.0, 800.0, 0.0}, {0.0, 800.0, 0.0}, {0.0, 0.0, 0.0}})
@@ -124,7 +129,7 @@ int main(int, char**) {
             double vxNoise = robotSpeed.vx() < 40. ? 0. : std::normal_distribution<double>(0.0, 1.0)(generator);
             double vthetaNoise = std::normal_distribution<double>(0.0, 0.001)(generator);
             lastSimu = now;
-            robotSpeed = speedCmd * 0.4 + robotSpeed * 0.6 + rd::Speed(vxNoise, 0, vthetaNoise);
+            robotSpeed = speedCmd * 0.9 + robotSpeed * 0.1 + rd::Speed(vxNoise, 0, vthetaNoise);
             // robotSpeed = rd::Speed(robotSpeed.vx(), robotSpeed.vy(), std::max(-1.5, std::min(1.5, robotSpeed.vtheta())));
             robotPose += rd::PointOriented((robotSpeed.vx() + 0) * robotPose.theta().cos() * dtSimu - robotSpeed.vy() * robotPose.theta().sin() * dtSimu,
                                            (robotSpeed.vx() + 0) * robotPose.theta().sin() * dtSimu + robotSpeed.vy() * robotPose.theta().cos() * dtSimu,
