@@ -13,6 +13,8 @@ C.O.I.N. probably stands for "Canards Oxydés Intelligence et Navigation".
 
 The dependencies may not need to be compiled and installed manually, as this project uses cmake FetchContent to retrieve and install them. However, for crosscompilation, they need to be compiled for the host and installed.
 
+Example instruction for building all the stack [here](./StackInstallationExample.md) (for both native and cross-compiling)
+
 ### Build and run
 
 ```bash
