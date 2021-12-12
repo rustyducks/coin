@@ -4,11 +4,6 @@ option(CROSSCOMPILE_ARM "Cross compiling for arm architecture" OFF)
 
 
 if(CROSSCOMPILE_ARM)
-    if(DEFINED ENV{LINUX_ARM_TOOLCHAIN_PATH})
-        set (LINUX_ARM_TOOLCHAIN_PATH $ENV{LINUX_ARM_TOOLCHAIN_PATH})
-    else()
-        set (LINUX_ARM_TOOLCHAIN_PATH /usr/lib/ccache)
-    endif()
     set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/arm_build.cmake)
 endif()
 
