@@ -11,9 +11,9 @@
 #include "Coin/Communication/CommunicationBase.h"
 #include "Coin/Communication/JSONInterface.h"
 #include "Ducklink/UDPDucklink.h"
+#include "Ducklink/messages.pb.h"
 #include "GeometryTools/Point.h"
 #include "GeometryTools/Speed.h"
-#include "generated/messages.pb.h"
 namespace rd {
 
 class UDPDucklinkInput : public CommunicationInputBase, public UDPDucklinkReceiver {
