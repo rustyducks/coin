@@ -35,6 +35,6 @@ Compile coin:
 ```bash
 mkdir buildarm && cd buildarm
 export LINUX_ARM_TOOLCHAIN_PATH=</path/to/toolchain>  # optional: defaults to /usr/lib/ccache
-cmake -DCROSSCOMPILE_ARM=ON -DCMAKE_INSTALL_PREFIX=</path/to/your/workspace/armlinux> ..  # your workspace must contain the dependencies, manually built for the host
+cmake -DCROSSCOMPILE_ARM=ON -DCMAKE_INSTALL_PREFIX=</path/to/your/workspace/armlinux> ..  # your workspace must contain the dependencies, manually built for the target
 make -j4
 ```
