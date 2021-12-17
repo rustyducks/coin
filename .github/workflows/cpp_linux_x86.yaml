@@ -1,0 +1,66 @@
+name: Ubuntu 20.04 x86_64 Full Stack Build
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Workspace directories creation
+        run: mkdir rustyducks && mkdir rustyducks/lib && mkdir rustyducks/include && mkdir rustyducks/src
+        env:
+          RUSTYDUCKS_WS_PATH: $GITHUB_WORKSPACE/rustyducks
+      - uses: actions/checkout@v2
+        with:
+          repository: rustyducks/ducklink_cpp
+          path: $RUSTYDUCKS_WS_PATH/src/ducklink_cpp
+          submodules: recursive
+      - uses: actions/checkout@v2
+        with:
+          repository: rustyducks/geometry_tools
+          path: $RUSTYDUCKS_WS_PATH/src/geometry_tools
+      - uses: actions/checkout@v2
+        with:
+          repository: rustyducks/navigation
+          path: $RUSTYDUCKS_WS_PATH/src/navigation
+      - uses: actions/checkout@v2
+        with:
+          repository: rustyducks/coin
+          path: $RUSTYDUCKS_WS_PATH/src/coin
+      - uses: actions/checkout@v2
+        with:
+          repository: protocolbuffers/protobuf
+          path: $RUSTYDUCKS_WS_PATH/src/protobuf
+          submodules: recursive
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y libeigen3-dev
+      - name: Build and install protobuf
+        working-directory: $RUSTYDUCKS_WS_PATH/src/protobuf
+        run: mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=$RUSTYDUCKS_WS_PATH -DCMAKE_BUILD_TYPE=Release -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_WITH_ZLIB=OFF ../cmake/ && make -j4 && make install
+      - name: Build and install ducklink_cpp
+        working-directory: $RUSTYDUCKS_WS_PATH/src/ducklink_cpp
+        run: |
+          mkdir build && cd build 
+          cmake -DCMAKE_INSTALL_PREFIX=$RUSTYDUCKS_WS_PATH -DCMAKE_BUILD_TYPE=Release ..
+          make -j4
+          make install
+      - name: Build and install geometry_tools
+        working-directory: $RUSTYDUCKS_WS_PATH/src/geometry_tools
+        run: |
+          mkdir build && cd build 
+          cmake -DCMAKE_INSTALL_PREFIX=$RUSTYDUCKS_WS_PATH -DCMAKE_BUILD_TYPE=Release ..
+          make -j4
+          make install
+      - name: Build and install navigation
+        working-directory: $RUSTYDUCKS_WS_PATH/src/navigation
+        run: |
+          mkdir build && cd build 
+          cmake -DCMAKE_INSTALL_PREFIX=$RUSTYDUCKS_WS_PATH -DCMAKE_BUILD_TYPE=Release ..
+          make -j4
+          make install
+      - name: Build and install coin
+        working-directory: $RUSTYDUCKS_WS_PATH/src/coin
+        run: |
+          mkdir build && cd build 
+          cmake -DCMAKE_INSTALL_PREFIX=$RUSTYDUCKS_WS_PATH -DCMAKE_BUILD_TYPE=Release ..
+          make -j4
