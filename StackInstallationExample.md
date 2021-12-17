@@ -1,5 +1,7 @@
 # Stack Compilation and Crosscompilation Example
 
+[![badge](https://github.com/rustyducks/coin/actions/workflows/cpp_linux_x86.yaml/badge.svg)](https://github.com/rustyducks/coin/actions/workflows/cpp_linux_x86.yaml)
+
 This document is intended for showing an example of a workspace setup, compilation and installation of the dependencies and compilation of the coin executable, both for native compilation and cross compilation for linux ARMhf (Raspberry Pi).
 
 ## Compiling and installing natively (done on Ubuntu 18.04)
