@@ -1,5 +1,7 @@
 # coin
 
+[![badge](https://github.com/rustyducks/coin/actions/workflows/cpp_linux_x86.yaml/badge.svg)](https://github.com/rustyducks/coin/actions/workflows/cpp_linux_x86.yaml)
+
 C.O.I.N. probably stands for "Canards Oxydés Intelligence et Navigation".
 
 ## Installation
