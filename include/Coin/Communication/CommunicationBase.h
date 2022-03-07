@@ -9,7 +9,7 @@
 
 namespace rd {
 
-enum eInput { GO_TO_POINT, GO_TO_POINT_ORIENTED, POSITION_REPORT, SPEED_REPORT, ARM_STATUS, HAT_STATUS, SPEED_COMMAND };
+enum eInput { GO_TO_POINT, GO_TO_POINT_ORIENTED, POSITION_REPORT, SPEED_REPORT, ARM_STATUS, HAT_STATUS, SPEED_COMMAND, SEQUENCE_REPORT };
 
 class Input {
    public:
@@ -84,6 +84,11 @@ class HatInput : public Input {
     bool pumpOn_, valveOpen_;
 };
 
+class StackerProcedureStatusInput : public Input {
+   public:
+    StackerProcedureStatusInput(eInput type) : Input(type) {}
+};
+
 class CommunicationInputBase {
    public:
     virtual std::vector<std::unique_ptr<Input>> getInputs() = 0;
@@ -101,6 +106,14 @@ class ArmCommandSenderInterface {
 class HatCommandSenderInterface {
    public:
     virtual void sendHatCommand(const double height, const bool pumpEnabled, const bool valveOpen) = 0;
+};
+
+class StackerProcedureSenderInterface {
+   public:
+    virtual void sendHome(const uint8_t armId) = 0;
+    virtual void sendStack(const uint8_t armId, const double stackHeight) = 0;
+    virtual void sendFlipAndStack(const uint8_t armId, const double stackHeight) = 0;
+    virtual void sendTakeFromStack(const uint8_t armId, const double stackHeight) = 0;
 };
 
 }  // namespace rd

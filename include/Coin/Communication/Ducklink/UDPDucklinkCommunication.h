@@ -25,13 +25,21 @@ class UDPDucklinkInput : public CommunicationInputBase, public UDPDucklinkReceiv
     virtual std::vector<std::unique_ptr<Input>> getInputs() override;
 };
 
-class UDPDucklinkOutput : public CommunicationOutputBase, public ArmCommandSenderInterface, public HatCommandSenderInterface, public UDPDucklinkSender {
+class UDPDucklinkOutput : public CommunicationOutputBase,
+                          public ArmCommandSenderInterface,
+                          public HatCommandSenderInterface,
+                          public UDPDucklinkSender,
+                          public StackerProcedureSenderInterface {
    public:
     UDPDucklinkOutput(const std::string& addr, const int port);
     virtual void sendSpeed(const Speed& speed) override;
     virtual void sendPoseReport(const PointOriented& pose) override;
     virtual void sendArmCommand(const double zPrismatic, const double zRotational, const double yRotational, const bool pumpEnabled, const bool valveOpen);
     virtual void sendHatCommand(const double height, const bool pumpEnabled, const bool valveOpen);
+    virtual void sendHome(const uint8_t armId) override;
+    virtual void sendStack(const uint8_t armId, const double stackHeight) override;
+    virtual void sendFlipAndStack(const uint8_t armId, const double stackHeight) override;
+    virtual void sendTakeFromStack(const uint8_t armId, const double stackHeight) override;
 };
 }  // namespace rd
 

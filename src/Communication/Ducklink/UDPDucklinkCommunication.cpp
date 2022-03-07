@@ -39,6 +39,8 @@ std::vector<std::unique_ptr<Input>> UDPDucklinkInput::getInputs() {
                 } else if (msg.has_hat()) {
                     toReturn.push_back(
                         std::make_unique<HatInput>(eInput::HAT_STATUS, msg.hat().height(), msg.hat().pump(), msg.hat().valve(), msg.hat().pressure()));
+                } else if (msg.has_procedure()) {
+                    toReturn.push_back(std::make_unique<StackerProcedureStatusInput>(eInput::SEQUENCE_REPORT));
                 }
             } else if (msg.msg_type() == protoduck::Message_MsgType::Message_MsgType_COMMAND) {
                 if (msg.has_speed()) {
@@ -95,4 +97,68 @@ void UDPDucklinkOutput::sendHatCommand(const double height, const bool pumpEnabl
     msg.set_msg_type(protoduck::Message_MsgType::Message_MsgType_COMMAND);
     sendMessage(msg);
 }
+
+void UDPDucklinkOutput::sendHome(const uint8_t armId) {
+    protoduck::Message msg;
+    protoduck::Procedure* procedure = msg.mutable_procedure();
+    protoduck::ArmID arm;
+    if (armId == 1) {
+        arm = protoduck::ArmID::ARM1;
+    } else if (armId == 2) {
+        arm = protoduck::ArmID::ARM2;
+    }
+    procedure->set_arm_id(arm);
+    procedure->set_proc(protoduck::Procedure_Proc::Procedure_Proc_HOME);
+    msg.set_msg_type(protoduck::Message_MsgType::Message_MsgType_COMMAND);
+    sendMessage(msg);
+}
+
+void UDPDucklinkOutput::sendStack(const uint8_t armId, const double stackHeight) {
+    protoduck::Message msg;
+    protoduck::Procedure* procedure = msg.mutable_procedure();
+    protoduck::ArmID arm;
+    if (armId == 1) {
+        arm = protoduck::ArmID::ARM1;
+    } else if (armId == 2) {
+        arm = protoduck::ArmID::ARM2;
+    }
+    procedure->set_arm_id(arm);
+    procedure->set_proc(protoduck::Procedure_Proc_PUT_ON_STACK);
+    procedure->set_param(std::round(stackHeight));
+    msg.set_msg_type(protoduck::Message_MsgType::Message_MsgType_COMMAND);
+    sendMessage(msg);
+}
+
+void UDPDucklinkOutput::sendFlipAndStack(const uint8_t armId, const double stackHeight) {
+    protoduck::Message msg;
+    protoduck::Procedure* procedure = msg.mutable_procedure();
+    protoduck::ArmID arm;
+    if (armId == 1) {
+        arm = protoduck::ArmID::ARM1;
+    } else if (armId == 2) {
+        arm = protoduck::ArmID::ARM2;
+    }
+    procedure->set_arm_id(arm);
+    procedure->set_proc(protoduck::Procedure_Proc_TURN_AND_PUT_ON_STACK);
+    procedure->set_param(std::round(stackHeight));
+    msg.set_msg_type(protoduck::Message_MsgType::Message_MsgType_COMMAND);
+    sendMessage(msg);
+}
+
+void UDPDucklinkOutput::sendTakeFromStack(const uint8_t armId, const double stackHeight) {
+    protoduck::Message msg;
+    protoduck::Procedure* procedure = msg.mutable_procedure();
+    protoduck::ArmID arm;
+    if (armId == 1) {
+        arm = protoduck::ArmID::ARM1;
+    } else if (armId == 2) {
+        arm = protoduck::ArmID::ARM2;
+    }
+    procedure->set_arm_id(arm);
+    procedure->set_proc(protoduck::Procedure_Proc_TAKE_FROM_STACK);
+    procedure->set_param(std::round(stackHeight));
+    msg.set_msg_type(protoduck::Message_MsgType::Message_MsgType_COMMAND);
+    sendMessage(msg);
+}
+
 }  // namespace rd
