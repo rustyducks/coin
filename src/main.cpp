@@ -10,11 +10,14 @@
 #include "Coin/Actuator/Hat.h"
 #include "Coin/Communication/Ducklink/UDPDucklinkCommunication.h"
 #include "Coin/Communication/UDPJson.h"
+#include "Coin/Table/Table.h"
 #include "GeometryTools/Point.h"
 #include "Navigation/PurePursuitControl.h"
 
 int main(int, char**) {
     std::cout << "Coucou" << std::endl;
+
+    rd::Table table;
 
     // rd::IvyHandler ivyHandler;
     //  rd::SerialDucklink serialDucklink("/dev/ttyUSB0", 57600);
