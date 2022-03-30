@@ -5,7 +5,7 @@
 #include "Ducklink/UDPDucklink.h"  // Hack to easily create a UDP sender
 
 namespace rd {
-class UDPJson : public JsonInterface, public UDPDucklinkSender {
+class UDPJson : public JsonInterface, public UDPDucklinkClient {
    public:
     UDPJson(const std::string &addr, const int port);
     virtual void sendSpeedJson(const Speed &speed, const std::string &name = "speed") override;

@@ -16,22 +16,14 @@
 #include "GeometryTools/Speed.h"
 namespace rd {
 
-class UDPDucklinkInput : public CommunicationInputBase, public UDPDucklinkReceiver {
+class UDPDucklink : public CommunicationOutputBase, public CommunicationInputBase, public ArmCommandSenderInterface, public HatCommandSenderInterface, public UDPDucklinkClient {
    public:
-    UDPDucklinkInput(const std::string& addr, const int port);
-    /*void sendSpeedJson(const Speed &speed, const std::string &name = "speed") override;
-    void sendPointOrientedJson(const PointOriented &point, const std::string &name = "point_oriented") override;*/
-
-    virtual std::vector<std::unique_ptr<Input>> getInputs() override;
-};
-
-class UDPDucklinkOutput : public CommunicationOutputBase, public ArmCommandSenderInterface, public HatCommandSenderInterface, public UDPDucklinkSender {
-   public:
-    UDPDucklinkOutput(const std::string& addr, const int port);
+    UDPDucklink(const std::string& addr, const int port);
     virtual void sendSpeed(const Speed& speed) override;
     virtual void sendPoseReport(const PointOriented& pose) override;
     virtual void sendArmCommand(const double zPrismatic, const double zRotational, const double yRotational, const bool pumpEnabled, const bool valveOpen);
     virtual void sendHatCommand(const double height, const bool pumpEnabled, const bool valveOpen);
+    virtual std::vector<std::unique_ptr<Input>> getInputs() override;
 };
 }  // namespace rd
 

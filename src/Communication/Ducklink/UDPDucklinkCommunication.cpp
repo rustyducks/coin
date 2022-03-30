@@ -5,23 +5,11 @@
 #include <cstring>
 
 namespace rd {
-UDPDucklinkInput::UDPDucklinkInput(const std::string& addr, const int port) : UDPDucklinkReceiver(addr, port) {}
 
-// void UDPDucklink::sendSpeedJson(const Speed& speed, const std::string& name) {
-//     std::ostringstream oss;
-//     oss << "{\"" << name << "\": {\"vx\":" << speed.vx() << ",\"vy\":" << speed.vy() << ",\"vtheta\":" << speed.vtheta() << "}}";
-//     std::string str = oss.str();
-//     send(str.c_str(), str.size());
-// }
+UDPDucklink::UDPDucklink(const std::string& addr, const int port) : UDPDucklinkClient(addr, port) {}
 
-// void UDPDucklink::sendPointOrientedJson(const PointOriented& point, const std::string& name) {
-//     std::ostringstream oss;
-//     oss << "{\"" << name << "\": {\"x\":" << point.x() << ",\"y\":" << point.y() << ",\"theta\":" << point.theta().value() << "}}";
-//     std::string str = oss.str();
-//     send(str.c_str(), str.size());
-// }
 
-std::vector<std::unique_ptr<Input>> UDPDucklinkInput::getInputs() {
+std::vector<std::unique_ptr<Input>> UDPDucklink::getInputs() {
     std::vector<protoduck::Message> msgs;
     std::vector<std::unique_ptr<Input>> toReturn;
     if (getMessages(msgs) > 0) {
@@ -51,9 +39,7 @@ std::vector<std::unique_ptr<Input>> UDPDucklinkInput::getInputs() {
     return toReturn;
 }
 
-UDPDucklinkOutput::UDPDucklinkOutput(const std::string& addr, const int port) : UDPDucklinkSender(addr, port) {}
-
-void UDPDucklinkOutput::sendSpeed(const Speed& speed) {
+void UDPDucklink::sendSpeed(const Speed& speed) {
     protoduck::Message msg;
     auto* speedCmd = msg.mutable_speed();
     speedCmd->set_vx(speed.vx());
@@ -63,7 +49,7 @@ void UDPDucklinkOutput::sendSpeed(const Speed& speed) {
     sendMessage(msg);
 }
 
-void UDPDucklinkOutput::sendPoseReport(const PointOriented& pose) {
+void UDPDucklink::sendPoseReport(const PointOriented& pose) {
     protoduck::Message msg;
     auto* poseReport = msg.mutable_pos();
     poseReport->set_x(pose.x());
@@ -73,7 +59,7 @@ void UDPDucklinkOutput::sendPoseReport(const PointOriented& pose) {
     sendMessage(msg);
 }
 
-void UDPDucklinkOutput::sendArmCommand(const double zPrismatic, const double zRotational, const double yRotational, const bool pumpEnabled,
+void UDPDucklink::sendArmCommand(const double zPrismatic, const double zRotational, const double yRotational, const bool pumpEnabled,
                                        const bool valveOpen) {
     protoduck::Message msg;
     protoduck::Arm* arm = msg.mutable_arm();
@@ -86,7 +72,7 @@ void UDPDucklinkOutput::sendArmCommand(const double zPrismatic, const double zRo
     msg.set_msg_type(protoduck::Message_MsgType::Message_MsgType_COMMAND);
     sendMessage(msg);
 }
-void UDPDucklinkOutput::sendHatCommand(const double height, const bool pumpEnabled, const bool valveOpen) {
+void UDPDucklink::sendHatCommand(const double height, const bool pumpEnabled, const bool valveOpen) {
     protoduck::Message msg;
     protoduck::Hat* hat = msg.mutable_hat();
     hat->set_height(height);

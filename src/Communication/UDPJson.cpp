@@ -1,7 +1,7 @@
 #include "Coin/Communication/UDPJson.h"
 
 namespace rd {
-UDPJson::UDPJson(const std::string &addr, const int port) : UDPDucklinkSender(addr, port) {}
+UDPJson::UDPJson(const std::string &addr, const int port) : UDPDucklinkClient(addr, port) {}
 
 void UDPJson::sendSpeedJson(const Speed &speed, const std::string &name) {
     std::ostringstream oss;
