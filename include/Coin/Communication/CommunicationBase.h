@@ -9,7 +9,7 @@
 
 namespace rd {
 
-enum eInput { GO_TO_POINT, GO_TO_POINT_ORIENTED, POSITION_REPORT, SPEED_REPORT, ARM_STATUS, HAT_STATUS, SPEED_COMMAND };
+enum eInput { GO_TO_POINT, GO_TO_POINT_ORIENTED, POSITION_REPORT, SPEED_REPORT, ARM_STATUS, HAT_STATUS, SPEED_COMMAND, LIDAR_ADVERSARY };
 
 class Input {
    public:
@@ -82,6 +82,17 @@ class HatInput : public Input {
    protected:
     double height_, pressure_;
     bool pumpOn_, valveOpen_;
+};
+
+class LidarAdversary : public Input {
+   public:
+    LidarAdversary(eInput type, const int id, const Point& pose) : Input(type), id_(id), pose_(pose) {}
+    const Point& getPose() const { return pose_; }
+    int getId() const { return id_; }
+
+   protected:
+    int id_;
+    Point pose_;
 };
 
 class CommunicationInputBase {

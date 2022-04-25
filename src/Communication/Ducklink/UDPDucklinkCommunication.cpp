@@ -8,7 +8,6 @@ namespace rd {
 
 UDPDucklink::UDPDucklink(const std::string& addr, const int port) : UDPDucklinkClient(addr, port) {}
 
-
 std::vector<std::unique_ptr<Input>> UDPDucklink::getInputs() {
     std::vector<protoduck::Message> msgs;
     std::vector<std::unique_ptr<Input>> toReturn;
@@ -27,6 +26,9 @@ std::vector<std::unique_ptr<Input>> UDPDucklink::getInputs() {
                 } else if (msg.has_hat()) {
                     toReturn.push_back(
                         std::make_unique<HatInput>(eInput::HAT_STATUS, msg.hat().height(), msg.hat().pump(), msg.hat().valve(), msg.hat().pressure()));
+                } else if (msg.has_player_pos()) {
+                    Point p(msg.player_pos().pos().x(), msg.player_pos().pos().y());
+                    toReturn.push_back(std::make_unique<LidarAdversary>(eInput::LIDAR_ADVERSARY, msg.player_pos().aruco_id(), p));
                 }
             } else if (msg.msg_type() == protoduck::Message_MsgType::Message_MsgType_COMMAND) {
                 if (msg.has_speed()) {
@@ -59,8 +61,7 @@ void UDPDucklink::sendPoseReport(const PointOriented& pose) {
     sendMessage(msg);
 }
 
-void UDPDucklink::sendArmCommand(const double zPrismatic, const double zRotational, const double yRotational, const bool pumpEnabled,
-                                       const bool valveOpen) {
+void UDPDucklink::sendArmCommand(const double zPrismatic, const double zRotational, const double yRotational, const bool pumpEnabled, const bool valveOpen) {
     protoduck::Message msg;
     protoduck::Arm* arm = msg.mutable_arm();
     arm->set_arm_id(protoduck::ArmID::ARM1);
