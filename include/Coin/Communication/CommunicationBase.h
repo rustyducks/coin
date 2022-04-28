@@ -49,15 +49,17 @@ class SpeedInput : public Input {
 
 class ArmInput : public Input {
    public:
-    ArmInput(eInput type, const double zPrismatic, const double zRotational, const double yRotational, const bool pumpOn, const bool valveOpen,
-             const double pressure)
+    ArmInput(eInput type, const unsigned int armId, const double zPrismatic, const double zRotational, const double yRotational, const bool pumpOn,
+             const bool valveOpen, const double pressure)
         : Input(type),
+          armId_(armId),
           zPrismatic_(zPrismatic),
           zRotational_(zRotational),
           yRotational_(yRotational),
           pressure_(pressure),
           pumpOn_(pumpOn),
           valveOpen_(valveOpen) {}
+    unsigned int armId() const { return armId_; }
     double zPrismatic() const { return zPrismatic_; }
     double zRotational() const { return zRotational_; }
     double yRotational() const { return yRotational_; }
@@ -66,6 +68,7 @@ class ArmInput : public Input {
     bool valveOpen() const { return valveOpen_; }
 
    protected:
+    unsigned int armId_;
     double zPrismatic_, zRotational_, yRotational_, pressure_;
     bool pumpOn_, valveOpen_;
 };
@@ -107,7 +110,8 @@ class CommunicationOutputBase {
 
 class ArmCommandSenderInterface {
    public:
-    virtual void sendArmCommand(const double zPrismatic, const double zRotational, const double yRotational, const bool pumpEnabled, const bool valveOpen) = 0;
+    virtual void sendArmCommand(const unsigned int armId, const double zPrismatic, const double zRotational, const double yRotational, const bool pumpEnabled,
+                                const bool valveOpen) = 0;
 };
 class HatCommandSenderInterface {
    public:

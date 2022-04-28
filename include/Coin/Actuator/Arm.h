@@ -8,7 +8,9 @@
 namespace rd {
 class Arm : public ActuatorBase<ArmInput> {
    public:
-    Arm(ArmCommandSenderInterface& sender);
+    enum ArmID { ARM_1 = 0, ARM_2 = 1 };
+
+    Arm(const ArmID armId, ArmCommandSenderInterface& sender);
 
     enum eJoint { Z_PRISMATIC, Z_ROTATIONAL, Y_ROTATIONAL };
     void setJoint(const eJoint& joint, const double value);
@@ -30,6 +32,7 @@ class Arm : public ActuatorBase<ArmInput> {
     bool pumpEnabled_;
     bool valveOpen_;
     double pressure_;
+    unsigned int armId_;
     ArmCommandSenderInterface& sender_;
 };
 }  // namespace rd

@@ -21,8 +21,8 @@ std::vector<std::unique_ptr<Input>> UDPDucklink::getInputs() {
                     Speed s(msg.speed().vx(), msg.speed().vy(), msg.speed().vtheta());
                     toReturn.push_back(std::make_unique<SpeedInput>(eInput::SPEED_REPORT, s));
                 } else if (msg.has_arm()) {
-                    toReturn.push_back(std::make_unique<ArmInput>(eInput::ARM_STATUS, msg.arm().traz(), msg.arm().rotz(), msg.arm().roty(), msg.arm().pump(),
-                                                                  msg.arm().valve(), msg.arm().pressure()));
+                    toReturn.push_back(std::make_unique<ArmInput>(eInput::ARM_STATUS, msg.arm().arm_id(), msg.arm().traz(), msg.arm().rotz(), msg.arm().roty(),
+                                                                  msg.arm().pump(), msg.arm().valve(), msg.arm().pressure()));
                 } else if (msg.has_hat()) {
                     toReturn.push_back(
                         std::make_unique<HatInput>(eInput::HAT_STATUS, msg.hat().height(), msg.hat().pump(), msg.hat().valve(), msg.hat().pressure()));
@@ -61,10 +61,14 @@ void UDPDucklink::sendPoseReport(const PointOriented& pose) {
     sendMessage(msg);
 }
 
-void UDPDucklink::sendArmCommand(const double zPrismatic, const double zRotational, const double yRotational, const bool pumpEnabled, const bool valveOpen) {
+void UDPDucklink::sendArmCommand(const unsigned int armId, const double zPrismatic, const double zRotational, const double yRotational, const bool pumpEnabled,
+                                 const bool valveOpen) {
     protoduck::Message msg;
     protoduck::Arm* arm = msg.mutable_arm();
-    arm->set_arm_id(protoduck::ArmID::ARM1);
+    if (armId > 1) {
+        return;
+    }
+    arm->set_arm_id(protoduck::ArmID(armId));
     arm->set_traz(zPrismatic);
     arm->set_rotz(zRotational);
     arm->set_roty(yRotational);
