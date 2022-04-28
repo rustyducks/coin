@@ -19,13 +19,15 @@ int main(int, char**) {
     // rd::IvyHandler ivyHandler;
     // rd::SerialDucklink serialDucklink("/dev/ttyUSB0", 57600);
     rd::UDPDucklink motorDucklink("127.0.0.1", 3456);
-    //rd::UDPJson udpClientJugglerPlot("127.0.0.1", 9870);
-    //rd::UDPDucklinkOutput udpClientAnatidae("127.0.0.1", 8888);
-    //rd::UDPDucklinkInput udpClientAnatidaeServer("0.0.0.0", 9999);
+    rd::UDPDucklink ioDucklink("127.0.0.1", 3457);
+    // rd::UDPJson udpClientJugglerPlot("127.0.0.1", 9870);
+    // rd::UDPDucklinkOutput udpClientAnatidae("127.0.0.1", 8888);
+    // rd::UDPDucklinkInput udpClientAnatidaeServer("0.0.0.0", 9999);
     rd::UDPDucklink lidarDucklink("127.0.0.1", 4321);
 
     rd::PointOriented robotPose({1500., 1000., 0.});
-    // rd::Arm arm(serialDucklink);
+    rd::Arm arm1(rd::Arm::ArmID::ARM_1, ioDucklink);
+    rd::Arm arm2(rd::Arm::ArmID::ARM_2, ioDucklink);
     const rd::PositionControlParameters robotParams = {
         500.,      // maxLinearAcceleration
         800.,      // maxLinearSpeed
@@ -40,13 +42,13 @@ int main(int, char**) {
 
     rd::PurePursuitControl pp(robotParams, 2, 100.);
     // rd::Path path = rd::Trajectory::lissajouPath(robotPose, 200, 750, 500);
-    // m 1500,1000 c -402.1505,-531.48472 -843.09906,340.3162 -213.2185,377.6856 784.9207,46.5676 -190.6885,833.5373 722.989,846.7716
+    //  m 1500,1000 c -402.1505,-531.48472 -843.09906,340.3162 -213.2185,377.6856 784.9207,46.5676 -190.6885,833.5373 722.989,846.7716
     rd::Path path1 = rd::Trajectory::cubicBezier(robotPose, {1098., 468.5}, {657., 1340.}, {1287., 1377., 0.}, 100);
     rd::Path path2 = rd::Trajectory::cubicBezier(path1.last(), {2072., 1424.}, {1096., 2211.}, {2010., 2224., 0.}, 100);
     //
     rd::Path path = path1 + path2;
-    //rd::Path path = rd::Path::fromSVG("./dessin.svg", 100);
-    for (size_t i=0; i<path.size(); i++){
+    //  rd::Path path = rd::Path::fromSVG("./dessin.svg", 100);
+    for (size_t i = 0; i < path.size(); i++) {
         std::cout << path.at(i) << std::endl;
     }
     std::cout << path.at(path.size() - 1) << std::endl;
@@ -63,6 +65,7 @@ int main(int, char**) {
     // rd::Robot mainRobot;
     //  rd::Slave behavior(mainRobot);
 
+    arm2.startPump(false);
     while (true) {
         // Update sensor values
         /*for (const auto& input : udpClientAnatidaeServer.getInputs()) {
@@ -86,6 +89,16 @@ int main(int, char**) {
                 auto& msg = static_cast<rd::SpeedInput&>(*input);
                 robotSpeed = msg.getSpeed();
                 std::cout << "speedreport: " << robotSpeed << std::endl;
+            }
+        }
+        for (const auto& input : ioDucklink.getInputs()) {
+            if (input->type() == rd::eInput::ARM_STATUS) {
+                auto& msg = static_cast<rd::ArmInput&>(*input);
+                if (msg.armId() == 0) {
+                    arm1.updateState(msg);
+                } else {
+                    arm2.updateState(msg);
+                }
             }
         }
         for (const auto& input : lidarDucklink.getInputs()) {
@@ -123,14 +136,22 @@ int main(int, char**) {
             // std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
             // double exet = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000000.;
             // std::cout << "exec time: " << exet << std::endl;
-            //udpClientJugglerPlot.sendSpeedJson(speedCmd, "speed_cmd");
+            // udpClientJugglerPlot.sendSpeedJson(speedCmd, "speed_cmd");
 
             // std::cout << robotSpeed << std::endl;
-	        motorDucklink.sendSpeed(speedCmd);
+            if (adversaryPose.x() <= 0.) {
+                speedCmd = {0., 0., 0.};
+            } else if (adversaryPose.x() <= 100.) {
+                speedCmd = {4. * 60., 0., 0.};
+            } else {
+                speedCmd = {60., 0., 0.};
+            }
+            motorDucklink.sendSpeed(speedCmd);
             robotSpeed = speedCmd;
 
+            lidarDucklink.sendPoseReport({1500., 1000., 0.0});
 
-            //serialDucklink.sendSpeed(robotSpeed);
+            // serialDucklink.sendSpeed(robotSpeed);
             std::cout << "Robot Pose: " << robotPose << std::endl;
             std::cout << "Speed: " << robotSpeed << std::endl;
             std::cout << "Speed Command: " << speedCmd << std::endl;
@@ -149,7 +170,7 @@ int main(int, char**) {
                                            (robotSpeed.vtheta() + 0) * dtSimu);
             udpClientJugglerPlot.sendSpeedJson(robotSpeed, "robot_speed");
             udpClientJugglerPlot.sendPointOrientedJson(robotPose);
-            lidarDucklink.sendPoseReport(robotPose);
+
             udpClientAnatidae.sendPoseReport(robotPose);
         }*/
 
