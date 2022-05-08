@@ -10,8 +10,9 @@
 #include "Coin/Actuator/Hat.h"
 #include "Coin/Communication/Ducklink/UDPDucklinkCommunication.h"
 #include "Coin/Communication/UDPJson.h"
+#include "Coin/Locomotion/Locomotion.h"
 #include "GeometryTools/Point.h"
-#include "Navigation/PurePursuitControl.h"
+#include "GeometryTools/Trajectory.h"
 
 int main(int, char**) {
     std::cout << "Coucou" << std::endl;
@@ -20,27 +21,28 @@ int main(int, char**) {
     // rd::SerialDucklink serialDucklink("/dev/ttyUSB0", 57600);
     rd::UDPDucklink motorDucklink("127.0.0.1", 3456);
     rd::UDPDucklink ioDucklink("127.0.0.1", 3457);
-    // rd::UDPJson udpClientJugglerPlot("127.0.0.1", 9870);
-    // rd::UDPDucklinkOutput udpClientAnatidae("127.0.0.1", 8888);
-    // rd::UDPDucklinkInput udpClientAnatidaeServer("0.0.0.0", 9999);
+    rd::UDPJson udpClientJugglerPlot("192.168.42.190", 9870);
     rd::UDPDucklink lidarDucklink("127.0.0.1", 4321);
+    // rd::UDPDucklink udpClientAnatidae("127.0.0.1", 8888);
+    //  rd::UDPDucklinkInput udpClientAnatidaeServer("0.0.0.0", 9999);
 
     rd::PointOriented robotPose({1500., 1000., 0.});
     rd::Arm arm1(rd::Arm::ArmID::ARM_1, ioDucklink);
     rd::Arm arm2(rd::Arm::ArmID::ARM_2, ioDucklink);
     const rd::PositionControlParameters robotParams = {
-        500.,      // maxLinearAcceleration
-        800.,      // maxLinearSpeed
-        1.0,       // maxRotationalAcceleration
-        2.0,       // maxRotationalSpeed
+        200.,      // maxLinearAcceleration
+        400.,      // maxLinearSpeed
+        2.0,       // maxRotationalAcceleration
+        2.5,       // maxRotationalSpeed
         5.,        // admittedLinearPositionError
         0.045,     // admittedAnglePositionError
         40.,       // minLinearSpeed
         M_PI / 8.  // minRotationalSpeed
     };
+    rd::Locomotion locomotion(robotParams);
+
     std::default_random_engine generator;
 
-    rd::PurePursuitControl pp(robotParams, 2, 100.);
     // rd::Path path = rd::Trajectory::lissajouPath(robotPose, 200, 750, 500);
     //  m 1500,1000 c -402.1505,-531.48472 -843.09906,340.3162 -213.2185,377.6856 784.9207,46.5676 -190.6885,833.5373 722.989,846.7716
     rd::Path path1 = rd::Trajectory::cubicBezier(robotPose, {1098., 468.5}, {657., 1340.}, {1287., 1377., 0.}, 100);
@@ -55,11 +57,12 @@ int main(int, char**) {
     rd::Trajectory traj = path.computeSpeeds(robotParams.maxLinearSpeed, robotParams.maxRotationalSpeed, 50., robotParams.maxLinearAcceleration);
     // rd::Trajectory traj = rd::Path({{0.0, 0.0, 0.0}, {800.0, 0.0, 0.0}, {800.0, 800.0, 0.0}, {0.0, 800.0, 0.0}, {0.0, 0.0, 0.0}})
     //                           .computeSpeeds(robotParams.maxLinearSpeed, robotParams.maxRotationalSpeed, 0, robotParams.maxLinearAcceleration);
-    pp.setTrajectory(traj);
+    locomotion.followTrajectory(traj);
     rd::Speed robotSpeed;
     rd::Speed speedCmd;
     rd::Point adversaryPose;
     std::chrono::steady_clock::time_point lastControl = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point lastSimu = std::chrono::steady_clock::now();
     std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
 
     // rd::Robot mainRobot;
@@ -83,10 +86,12 @@ int main(int, char**) {
         for (const auto& input : motorDucklink.getInputs()) {
             if (input->type() == rd::eInput::POSITION_REPORT) {
                 auto& msg = static_cast<rd::PointOrientedInput&>(*input);
+                locomotion.updateRobotPose(msg);
                 robotPose = msg.getPoint();
                 std::cout << "robotPose: " << robotPose << std::endl;
             } else if (input->type() == rd::eInput::SPEED_REPORT) {
                 auto& msg = static_cast<rd::SpeedInput&>(*input);
+                locomotion.updateRobotSpeed(msg);
                 robotSpeed = msg.getSpeed();
                 std::cout << "speedreport: " << robotSpeed << std::endl;
             }
@@ -103,10 +108,13 @@ int main(int, char**) {
         }
         for (const auto& input : lidarDucklink.getInputs()) {
             std::cout << "Received" << std::endl;
-            if (input->type() == rd::eInput::LIDAR_ADVERSARY) {
-                auto& msg = static_cast<rd::LidarAdversary&>(*input);
-                adversaryPose = msg.getPose();
-                std::cout << "Adversary: " << adversaryPose << std::endl;
+            if (input->type() == rd::eInput::LIDAR_ADVERSARIES) {
+                auto& msg = static_cast<rd::LidarAdversaries&>(*input);
+                locomotion.updateAdversaries(msg);
+                std::cout << "Adversaries: " << std::endl;
+                for (const auto& a : msg.getAdversaries()) {
+                    std::cout << a.first << ": " << a.second << std::endl;
+                }
             }
         }
         /*        for (const auto& input : serialDucklink.getInputs()) {
@@ -132,33 +140,24 @@ int main(int, char**) {
             lastControl = now;
             // std::cout << "dt: " << dt << std::endl;
             // std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-            speedCmd = pp.computeSpeed(robotPose, robotSpeed, dt);
+            speedCmd = locomotion.run(dt);
             // std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
             // double exet = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000000.;
             // std::cout << "exec time: " << exet << std::endl;
             // udpClientJugglerPlot.sendSpeedJson(speedCmd, "speed_cmd");
 
             // std::cout << robotSpeed << std::endl;
-            if (adversaryPose.x() <= 0.) {
-                speedCmd = {0., 0., 0.};
-            } else if (adversaryPose.x() <= 100.) {
-                speedCmd = {4. * 60., 0., 0.};
-            } else {
-                speedCmd = {60., 0., 0.};
-            }
             motorDucklink.sendSpeed(speedCmd);
-            robotSpeed = speedCmd;
+            // locomotion.updateRobotSpeed(rd::SpeedInput(rd::eInput::SPEED_REPORT, speedCmd));
 
-            lidarDucklink.sendPoseReport({1500., 1000., 0.0});
-
-            // serialDucklink.sendSpeed(robotSpeed);
-            std::cout << "Robot Pose: " << robotPose << std::endl;
+            /*std::cout << "Robot Pose: " << robotPose << std::endl;
             std::cout << "Speed: " << robotSpeed << std::endl;
-            std::cout << "Speed Command: " << speedCmd << std::endl;
-            // arm.setJoint(rd::Arm::eJoint::Z_ROTATIONAL, joints[i]);
-            // i = (i + 1) % 3;
+            std::cout << "Speed Command: " << speedCmd << std::endl;*/
+            udpClientJugglerPlot.sendSpeedJson(speedCmd, "speed_cmd");
+            udpClientJugglerPlot.sendSpeedJson(robotSpeed, "robot_speed");
+            udpClientJugglerPlot.sendPointOrientedJson(robotPose, "robot_pose");
         }
-        /*double dtSimu = std::chrono::duration_cast<std::chrono::microseconds>(now - lastSimu).count() / 1000000.;
+        double dtSimu = std::chrono::duration_cast<std::chrono::microseconds>(now - lastSimu).count() / 1000000.;
         if (dtSimu > 0.02) {
             double vxNoise = robotSpeed.vx() < 40. ? 0. : std::normal_distribution<double>(0.0, 1.0)(generator);
             double vthetaNoise = std::normal_distribution<double>(0.0, 0.001)(generator);
@@ -168,11 +167,13 @@ int main(int, char**) {
             robotPose += rd::PointOriented((robotSpeed.vx() + 0) * robotPose.theta().cos() * dtSimu - robotSpeed.vy() * robotPose.theta().sin() * dtSimu,
                                            (robotSpeed.vx() + 0) * robotPose.theta().sin() * dtSimu + robotSpeed.vy() * robotPose.theta().cos() * dtSimu,
                                            (robotSpeed.vtheta() + 0) * dtSimu);
-            udpClientJugglerPlot.sendSpeedJson(robotSpeed, "robot_speed");
+            locomotion.updateRobotSpeed(rd::SpeedInput(rd::eInput::SPEED_REPORT, robotSpeed));
+            locomotion.updateRobotPose(rd::PointOrientedInput(rd::eInput::POSITION_REPORT, robotPose));
+            // udpClientJugglerPlot.sendSpeedJson(robotSpeed, "robot_speed");
             udpClientJugglerPlot.sendPointOrientedJson(robotPose);
 
-            udpClientAnatidae.sendPoseReport(robotPose);
-        }*/
+            // udpClientAnatidae.sendPoseReport(robotPose);
+        }
 
         // Abstract these values
 

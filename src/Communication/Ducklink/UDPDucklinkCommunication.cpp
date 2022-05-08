@@ -26,9 +26,14 @@ std::vector<std::unique_ptr<Input>> UDPDucklink::getInputs() {
                 } else if (msg.has_hat()) {
                     toReturn.push_back(
                         std::make_unique<HatInput>(eInput::HAT_STATUS, msg.hat().height(), msg.hat().pump(), msg.hat().valve(), msg.hat().pressure()));
-                } else if (msg.has_player_pos()) {
-                    Point p(msg.player_pos().pos().x(), msg.player_pos().pos().y());
-                    toReturn.push_back(std::make_unique<LidarAdversary>(eInput::LIDAR_ADVERSARY, msg.player_pos().aruco_id(), p));
+                } else if (msg.has_player_poses()) {
+                    std::vector<std::pair<int, Point>> adv;
+                    for (auto& a : msg.player_poses().player_poses()) {
+                        auto pos = a.pos();
+                        Point p(pos.x(), pos.y());
+                        adv.push_back(std::make_pair(a.aruco_id(), p));
+                    }
+                    toReturn.push_back(std::make_unique<LidarAdversaries>(eInput::LIDAR_ADVERSARIES, adv));
                 }
             } else if (msg.msg_type() == protoduck::Message_MsgType::Message_MsgType_COMMAND) {
                 if (msg.has_speed()) {

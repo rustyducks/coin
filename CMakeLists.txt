@@ -60,7 +60,7 @@ endif()
 
 
 add_executable(Coin src/main.cpp src/Behavior/Slave.cpp src/Robot.cpp
-        src/Actuator/Arm.cpp src/Actuator/Hat.cpp src/Communication/Ducklink/UDPDucklinkCommunication.cpp src/Communication/UDPJson.cpp)
+        src/Actuator/Arm.cpp src/Actuator/Hat.cpp src/Communication/Ducklink/UDPDucklinkCommunication.cpp src/Communication/UDPJson.cpp src/Locomotion/Locomotion.cpp)
 target_include_directories(Coin PUBLIC include)
 target_link_libraries(Coin PUBLIC GeometryTools Navigation Ducklink Protoduck)
 set_target_properties(Coin PROPERTIES CXX_STANDARD 14)

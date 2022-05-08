@@ -7,18 +7,7 @@
 namespace rd {
 class Robot {
    public:
-    Robot(const PositionControlParameters& posControlParams);
-    void setTargetPoint(const PointOriented& target);
-    void setTargetSpeed(const Speed& speed);
-    void controlPosition();
-
    protected:
-    PointOriented position_;
-
-    enum ePositionControlType { IDLE, SPEED, POSITION_CONTROL };
-    ePositionControlType positionControlType_;
-    std::unique_ptr<PositionControlBase> positionControl_;
-    Speed targetSpeed_;
 };
 }  // namespace rd
 
