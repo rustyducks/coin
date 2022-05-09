@@ -20,6 +20,7 @@ class UDPDucklink : public CommunicationOutputBase,
                     public CommunicationInputBase,
                     public ArmCommandSenderInterface,
                     public HatCommandSenderInterface,
+                    public ProcedureCommandSenderInterface,
                     public UDPDucklinkClient {
    public:
     UDPDucklink(const std::string& addr, const int port);
@@ -28,6 +29,8 @@ class UDPDucklink : public CommunicationOutputBase,
     virtual void sendArmCommand(const unsigned int armId, const double zPrismatic, const double zRotational, const double yRotational, const bool pumpEnabled,
                                 const bool valveOpen);
     virtual void sendHatCommand(const double height, const bool pumpEnabled, const bool valveOpen);
+    virtual void sendProcedureCommand(const unsigned int armId, const protoduck::Procedure_Proc procedure, const int param) override;
+
     virtual std::vector<std::unique_ptr<Input>> getInputs() override;
 };
 }  // namespace rd

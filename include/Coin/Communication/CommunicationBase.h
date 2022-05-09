@@ -4,12 +4,13 @@
 #include <memory>
 #include <vector>
 
+#include "Ducklink/messages.pb.h"
 #include "GeometryTools/Point.h"
 #include "GeometryTools/Speed.h"
 
 namespace rd {
 
-enum eInput { GO_TO_POINT, GO_TO_POINT_ORIENTED, POSITION_REPORT, SPEED_REPORT, ARM_STATUS, HAT_STATUS, SPEED_COMMAND, LIDAR_ADVERSARIES };
+enum eInput { GO_TO_POINT, GO_TO_POINT_ORIENTED, POSITION_REPORT, SPEED_REPORT, ARM_STATUS, HAT_STATUS, SPEED_COMMAND, LIDAR_ADVERSARIES, PROCEDURE_STATUS };
 
 class Input {
    public:
@@ -90,10 +91,42 @@ class HatInput : public Input {
 class LidarAdversaries : public Input {
    public:
     LidarAdversaries(eInput type, const std::vector<std::pair<int, Point>> adversaries) : Input(type), adversaries_(adversaries) {}
-    const std::vector<std::pair<int, Point>>& getAdversaries() const { return adversaries_; }
-
-   protected:
     std::vector<std::pair<int, Point>> adversaries_;
+};
+
+class ProcedureInput : public Input {
+   public:
+    enum eStatus {
+        RUNNING,
+        SUCCESS,
+        FAILURE,
+        POSITION_UNREACHABLE,
+        UNABLE_VACUUM,
+    };
+    ProcedureInput(eInput type, const protoduck::Procedure_Status status) : Input(type) {
+        switch (status) {
+            case protoduck::Procedure_Status::Procedure_Status_RUNNING:
+                status_ = eStatus::RUNNING;
+                break;
+            case protoduck::Procedure_Status::Procedure_Status_SUCCESS:
+                status_ = eStatus::SUCCESS;
+                break;
+            case protoduck::Procedure_Status::Procedure_Status_FAILURE:
+                status_ = eStatus::FAILURE;
+                break;
+            case protoduck::Procedure_Status::Procedure_Status_POSITION_UNREACHABLE:
+                status_ = eStatus::POSITION_UNREACHABLE;
+                break;
+            case protoduck::Procedure_Status::Procedure_Status_UNABLE_VACUUM:
+                status_ = eStatus::UNABLE_VACUUM;
+                break;
+            case protoduck::Procedure_Status::Procedure_Status_Procedure_Status_INT_MAX_SENTINEL_DO_NOT_USE_:
+                break;
+            case protoduck::Procedure_Status::Procedure_Status_Procedure_Status_INT_MIN_SENTINEL_DO_NOT_USE_:
+                break;
+        }
+    }
+    eStatus status_;
 };
 
 class CommunicationInputBase {
@@ -114,6 +147,11 @@ class ArmCommandSenderInterface {
 class HatCommandSenderInterface {
    public:
     virtual void sendHatCommand(const double height, const bool pumpEnabled, const bool valveOpen) = 0;
+};
+
+class ProcedureCommandSenderInterface {
+   public:
+    virtual void sendProcedureCommand(const unsigned int armId, const protoduck::Procedure_Proc procedure, const int param) = 0;
 };
 
 }  // namespace rd

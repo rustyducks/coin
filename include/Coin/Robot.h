@@ -2,7 +2,9 @@
 #define ROBOT_H
 #include <memory>
 
-#include "Navigation/PositionControlBase.h"
+#include "Coin/Actuator/Arm.h"
+#include "Coin/Actuator/Hat.h"
+#include "Coin/Locomotion/Locomotion.h"
 
 namespace rd {
 class Robot {

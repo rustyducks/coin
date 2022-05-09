@@ -34,6 +34,8 @@ std::vector<std::unique_ptr<Input>> UDPDucklink::getInputs() {
                         adv.push_back(std::make_pair(a.aruco_id(), p));
                     }
                     toReturn.push_back(std::make_unique<LidarAdversaries>(eInput::LIDAR_ADVERSARIES, adv));
+                } else if (msg.has_procedure()) {
+                    toReturn.push_back(std::make_unique<ProcedureInput>(eInput::PROCEDURE_STATUS, msg.procedure().status()));
                 }
             } else if (msg.msg_type() == protoduck::Message_MsgType::Message_MsgType_COMMAND) {
                 if (msg.has_speed()) {
@@ -88,6 +90,19 @@ void UDPDucklink::sendHatCommand(const double height, const bool pumpEnabled, co
     hat->set_height(height);
     hat->set_pump(pumpEnabled);
     hat->set_valve(valveOpen);
+    msg.set_msg_type(protoduck::Message_MsgType::Message_MsgType_COMMAND);
+    sendMessage(msg);
+}
+
+void UDPDucklink::sendProcedureCommand(const unsigned int armId, const protoduck::Procedure_Proc procedure, const int param) {
+    protoduck::Message msg;
+    protoduck::Procedure* proc = msg.mutable_procedure();
+    if (armId > 1) {
+        return;
+    }
+    proc->set_arm_id(protoduck::ArmID(armId));
+    proc->set_proc(procedure);
+    proc->set_param(param);
     msg.set_msg_type(protoduck::Message_MsgType::Message_MsgType_COMMAND);
     sendMessage(msg);
 }

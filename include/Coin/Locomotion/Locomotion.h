@@ -18,7 +18,7 @@ class Locomotion {
 
     void updateRobotPose(PointOrientedInput pose) { robotPose_ = pose.getPoint(); }
     void updateRobotSpeed(SpeedInput speed) { robotSpeed_ = speed.getSpeed(); }
-    void updateAdversaries(LidarAdversaries adv) { adversaries_ = adv.getAdversaries(); }
+    void updateAdversaries(LidarAdversaries adv) { adversaries_ = adv.adversaries_; }
 
    protected:
     PointOriented robotPose_;

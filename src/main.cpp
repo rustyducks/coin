@@ -8,6 +8,7 @@
 
 #include "Coin/Actuator/Arm.h"
 #include "Coin/Actuator/Hat.h"
+#include "Coin/Actuator/StackManager.h"
 #include "Coin/Communication/Ducklink/UDPDucklinkCommunication.h"
 #include "Coin/Communication/UDPJson.h"
 #include "Coin/Locomotion/Locomotion.h"
@@ -29,6 +30,8 @@ int main(int, char**) {
     rd::PointOriented robotPose({1500., 1000., 0.});
     rd::Arm arm1(rd::Arm::ArmID::ARM_1, ioDucklink);
     rd::Arm arm2(rd::Arm::ArmID::ARM_2, ioDucklink);
+    rd::Hat hat(ioDucklink);
+    rd::StackManager stackman(arm1, arm2, hat, ioDucklink);
     const rd::PositionControlParameters robotParams = {
         200.,      // maxLinearAcceleration
         400.,      // maxLinearSpeed
@@ -104,6 +107,11 @@ int main(int, char**) {
                 } else {
                     arm2.updateState(msg);
                 }
+            } else if (input->type() == rd::eInput::HAT_STATUS) {
+                auto& msg = static_cast<rd::HatInput&>(*input);
+                hat.updateState(msg);
+            } else if (input->type() == rd::eInput::PROCEDURE_STATUS){
+                
             }
         }
         for (const auto& input : lidarDucklink.getInputs()) {
@@ -112,7 +120,7 @@ int main(int, char**) {
                 auto& msg = static_cast<rd::LidarAdversaries&>(*input);
                 locomotion.updateAdversaries(msg);
                 std::cout << "Adversaries: " << std::endl;
-                for (const auto& a : msg.getAdversaries()) {
+                for (const auto& a : msg.adversaries_) {
                     std::cout << a.first << ": " << a.second << std::endl;
                 }
             }
