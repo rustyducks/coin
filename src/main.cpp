@@ -16,7 +16,7 @@
 #include "GeometryTools/Trajectory.h"
 
 int main(int, char**) {
-    std::cout << "Coucou" << std::endl;
+    std::cout << "Coin coin" << std::endl;
 
     // rd::IvyHandler ivyHandler;
     // rd::SerialDucklink serialDucklink("/dev/ttyUSB0", 57600);
@@ -27,7 +27,6 @@ int main(int, char**) {
     // rd::UDPDucklink udpClientAnatidae("127.0.0.1", 8888);
     //  rd::UDPDucklinkInput udpClientAnatidaeServer("0.0.0.0", 9999);
 
-    rd::PointOriented robotPose({1500., 1000., 0.});
     rd::Arm arm1(rd::Arm::ArmID::ARM_1, ioDucklink);
     rd::Arm arm2(rd::Arm::ArmID::ARM_2, ioDucklink);
     rd::Hat hat(ioDucklink);
@@ -43,12 +42,13 @@ int main(int, char**) {
         M_PI / 8.  // minRotationalSpeed
     };
     rd::Locomotion locomotion(robotParams, motorDucklink);
+    locomotion.forceRobotPose({1500., 1000., 0.0});
 
     std::default_random_engine generator;
 
     // rd::Path path = rd::Trajectory::lissajouPath(robotPose, 200, 750, 500);
     //  m 1500,1000 c -402.1505,-531.48472 -843.09906,340.3162 -213.2185,377.6856 784.9207,46.5676 -190.6885,833.5373 722.989,846.7716
-    rd::Path path1 = rd::Trajectory::cubicBezier(robotPose, {1098., 468.5}, {657., 1340.}, {1287., 1377., 0.}, 100);
+    rd::Path path1 = rd::Trajectory::cubicBezier(locomotion.robotPose(), {1098., 468.5}, {657., 1340.}, {1287., 1377., 0.}, 100);
     rd::Path path2 = rd::Trajectory::cubicBezier(path1.last(), {2072., 1424.}, {1096., 2211.}, {2010., 2224., 0.}, 100);
     //
     rd::Path path = path1 + path2;
@@ -61,7 +61,6 @@ int main(int, char**) {
     // rd::Trajectory traj = rd::Path({{0.0, 0.0, 0.0}, {800.0, 0.0, 0.0}, {800.0, 800.0, 0.0}, {0.0, 800.0, 0.0}, {0.0, 0.0, 0.0}})
     //                           .computeSpeeds(robotParams.maxLinearSpeed, robotParams.maxRotationalSpeed, 0, robotParams.maxLinearAcceleration);
     locomotion.followTrajectory(traj);
-    rd::Speed robotSpeed;
     rd::Speed speedCmd;
     rd::Point adversaryPose;
     std::chrono::steady_clock::time_point lastControl = std::chrono::steady_clock::now();
@@ -90,13 +89,11 @@ int main(int, char**) {
             if (input->type() == rd::eInput::POSITION_REPORT) {
                 auto& msg = static_cast<rd::PointOrientedInput&>(*input);
                 locomotion.updateRobotPose(msg);
-                robotPose = msg.getPoint();
-                std::cout << "robotPose: " << robotPose << std::endl;
+                std::cout << "robotPose: " << locomotion.robotPose() << std::endl;
             } else if (input->type() == rd::eInput::SPEED_REPORT) {
                 auto& msg = static_cast<rd::SpeedInput&>(*input);
                 locomotion.updateRobotSpeed(msg);
-                robotSpeed = msg.getSpeed();
-                std::cout << "speedreport: " << robotSpeed << std::endl;
+                std::cout << "speedreport: " << locomotion.robotSpeed() << std::endl;
             }
         }
         for (const auto& input : ioDucklink.getInputs()) {
@@ -160,16 +157,18 @@ int main(int, char**) {
             std::cout << "Speed: " << robotSpeed << std::endl;
             std::cout << "Speed Command: " << speedCmd << std::endl;*/
             udpClientJugglerPlot.sendSpeedJson(speedCmd, "speed_cmd");
-            udpClientJugglerPlot.sendSpeedJson(robotSpeed, "robot_speed");
-            udpClientJugglerPlot.sendPointOrientedJson(robotPose, "robot_pose");
+            udpClientJugglerPlot.sendSpeedJson(locomotion.robotSpeed(), "robot_speed");
+            udpClientJugglerPlot.sendPointOrientedJson(locomotion.robotPose(), "robot_pose");
         }
         double dtSimu = std::chrono::duration_cast<std::chrono::microseconds>(now - lastSimu).count() / 1000000.;
-        if (dtSimu > 0.02) {
-            double vxNoise = robotSpeed.vx() < 40. ? 0. : std::normal_distribution<double>(0.0, 1.0)(generator);
+        if (dtSimu > 0.01) {
+            rd::Speed robotSpeed = locomotion.robotSpeed();
+            double vxNoise = robotSpeed.vx() < 20. ? 0. : std::normal_distribution<double>(0.0, 20.0)(generator);
             double vthetaNoise = std::normal_distribution<double>(0.0, 0.001)(generator);
             lastSimu = now;
-            robotSpeed = speedCmd * 0.9 + robotSpeed * 0.1 + rd::Speed(vxNoise, 0, vthetaNoise);
+            robotSpeed = speedCmd * 0.6 + robotSpeed * 0.4 + rd::Speed(vxNoise, 0, vthetaNoise);
             // robotSpeed = rd::Speed(robotSpeed.vx(), robotSpeed.vy(), std::max(-1.5, std::min(1.5, robotSpeed.vtheta())));
+            rd::PointOriented robotPose = locomotion.robotPose();
             robotPose += rd::PointOriented((robotSpeed.vx() + 0) * robotPose.theta().cos() * dtSimu - robotSpeed.vy() * robotPose.theta().sin() * dtSimu,
                                            (robotSpeed.vx() + 0) * robotPose.theta().sin() * dtSimu + robotSpeed.vy() * robotPose.theta().cos() * dtSimu,
                                            (robotSpeed.vtheta() + 0) * dtSimu);
@@ -188,6 +187,6 @@ int main(int, char**) {
 
         // Act
         // mainRobot.controlPosition();
-        usleep(5);
+        usleep(1);
     }
 }

@@ -4,6 +4,7 @@
 #include "Coin/Communication/CommunicationBase.h"
 #include "Navigation/PositionControlBase.h"
 #include "Navigation/PurePursuitControl.h"
+#include "chrono"
 #include "memory"
 
 namespace rd {
@@ -24,6 +25,13 @@ class Locomotion {
         communicationBase_.sendPoseCommand(pose);
     }
 
+    const PointOriented& robotPose() const { return robotPose_; }
+    const Speed& robotSpeed() const { return robotSpeed_; }
+    const std::vector<std::pair<int, Point>> getAdversaries() const { return adversaries_; }
+
+    bool isRobotBlocked() const { return robotBlocked_; }
+    double robotBlockedDuration() const;
+
    protected:
     PointOriented robotPose_;
     Speed robotSpeed_;
@@ -37,6 +45,11 @@ class Locomotion {
     ePositionControlType positionControlType_;
     PurePursuitControl positionControl_;
     Speed targetSpeed_;
+
+    Speed lastCommand_;
+
+    bool robotBlocked_;
+    std::chrono::steady_clock::time_point robotBlockedSince_;
 };
 
 }  // namespace rd

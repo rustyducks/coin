@@ -4,11 +4,17 @@
 
 namespace rd {
 Locomotion::Locomotion(PositionControlParameters positionControlParameters, CommunicationOutputBase& communicationBase)
-    : communicationBase_(communicationBase),
+    : robotPose_(0., 0., 0.),
+      robotSpeed_(0., 0., 0.),
+      communicationBase_(communicationBase),
+      adversaries_(),
       parameters_(positionControlParameters),
       positionControlType_(IDLE),
       positionControl_(positionControlParameters, 2, 150.),
-      targetSpeed_(0., 0., 0.) {}
+      targetSpeed_(0., 0., 0.),
+      lastCommand_(0., 0., 0.),
+      robotBlocked_(false),
+      robotBlockedSince_() {}
 
 void Locomotion::followTrajectory(const Trajectory& traj) {
     positionControl_.setTrajectory(traj);
@@ -38,6 +44,13 @@ Speed Locomotion::run(const double dt) {
             }
             // Scale the speed according to outerX and innerX (>outerX fullSpeed, <innerX full stop, percent factor between the two)
             double maxSpeedObstacles = parameters_.maxLinearSpeed * std::max(0., std::min(1., (minX - innerX) / (outerX - innerX)));
+            bool newRobotBlocked = maxSpeedObstacles <= 0.;
+            if (newRobotBlocked != robotBlocked_) {
+                robotBlocked_ = newRobotBlocked;
+                if (newRobotBlocked) {
+                    robotBlockedSince_ = std::chrono::steady_clock::now();
+                }
+            }
             outputSpeed = positionControl_.computeSpeed(robotPose_, robotSpeed_, dt, maxSpeedObstacles);
         } break;
 
@@ -45,7 +58,17 @@ Speed Locomotion::run(const double dt) {
             outputSpeed = Speed(0., 0., 0.);
             break;
     }
+    lastCommand_ = outputSpeed;
     communicationBase_.sendSpeed(outputSpeed);
     return outputSpeed;
 }
+
+double Locomotion::robotBlockedDuration() const {
+    if (!robotBlocked_) {
+        return 0.;
+    }
+    auto now = std::chrono::steady_clock::now();
+    return std::chrono::duration_cast<std::chrono::microseconds>(now - robotBlockedSince_).count() / 1000000.;
+}
+
 }  // namespace rd
