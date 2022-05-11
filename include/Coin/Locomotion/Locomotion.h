@@ -10,7 +10,7 @@ namespace rd {
 
 class Locomotion {
    public:
-    Locomotion(PositionControlParameters positionControlParameters_);
+    Locomotion(PositionControlParameters positionControlParameters_, CommunicationOutputBase& communicationBase);
 
     Speed run(const double dt);
 
@@ -19,10 +19,16 @@ class Locomotion {
     void updateRobotPose(PointOrientedInput pose) { robotPose_ = pose.getPoint(); }
     void updateRobotSpeed(SpeedInput speed) { robotSpeed_ = speed.getSpeed(); }
     void updateAdversaries(LidarAdversaries adv) { adversaries_ = adv.adversaries_; }
+    void forceRobotPose(const PointOriented& pose) {
+        robotPose_ = pose;
+        communicationBase_.sendPoseCommand(pose);
+    }
 
    protected:
     PointOriented robotPose_;
     Speed robotSpeed_;
+
+    CommunicationOutputBase& communicationBase_;
 
     std::vector<std::pair<int, Point>> adversaries_;
 

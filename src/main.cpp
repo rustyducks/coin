@@ -22,7 +22,7 @@ int main(int, char**) {
     // rd::SerialDucklink serialDucklink("/dev/ttyUSB0", 57600);
     rd::UDPDucklink motorDucklink("127.0.0.1", 3456);
     rd::UDPDucklink ioDucklink("127.0.0.1", 3457);
-    rd::UDPJson udpClientJugglerPlot("192.168.42.190", 9870);
+    rd::UDPJson udpClientJugglerPlot("127.0.0.1", 9870);
     rd::UDPDucklink lidarDucklink("127.0.0.1", 4321);
     // rd::UDPDucklink udpClientAnatidae("127.0.0.1", 8888);
     //  rd::UDPDucklinkInput udpClientAnatidaeServer("0.0.0.0", 9999);
@@ -42,7 +42,7 @@ int main(int, char**) {
         40.,       // minLinearSpeed
         M_PI / 8.  // minRotationalSpeed
     };
-    rd::Locomotion locomotion(robotParams);
+    rd::Locomotion locomotion(robotParams, motorDucklink);
 
     std::default_random_engine generator;
 
@@ -110,8 +110,7 @@ int main(int, char**) {
             } else if (input->type() == rd::eInput::HAT_STATUS) {
                 auto& msg = static_cast<rd::HatInput&>(*input);
                 hat.updateState(msg);
-            } else if (input->type() == rd::eInput::PROCEDURE_STATUS){
-                
+            } else if (input->type() == rd::eInput::PROCEDURE_STATUS) {
             }
         }
         for (const auto& input : lidarDucklink.getInputs()) {
@@ -155,7 +154,6 @@ int main(int, char**) {
             // udpClientJugglerPlot.sendSpeedJson(speedCmd, "speed_cmd");
 
             // std::cout << robotSpeed << std::endl;
-            motorDucklink.sendSpeed(speedCmd);
             // locomotion.updateRobotSpeed(rd::SpeedInput(rd::eInput::SPEED_REPORT, speedCmd));
 
             /*std::cout << "Robot Pose: " << robotPose << std::endl;

@@ -135,8 +135,10 @@ class CommunicationInputBase {
 };
 
 class CommunicationOutputBase {
+   public:
     virtual void sendSpeed(const Speed& speed) = 0;
     virtual void sendPoseReport(const PointOriented& pose) = 0;
+    virtual void sendPoseCommand(const PointOriented& pose) = 0;
 };
 
 class ArmCommandSenderInterface {

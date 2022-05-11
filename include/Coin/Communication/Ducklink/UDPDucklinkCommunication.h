@@ -26,6 +26,7 @@ class UDPDucklink : public CommunicationOutputBase,
     UDPDucklink(const std::string& addr, const int port);
     virtual void sendSpeed(const Speed& speed) override;
     virtual void sendPoseReport(const PointOriented& pose) override;
+    virtual void sendPoseCommand(const PointOriented& pose) override;
     virtual void sendArmCommand(const unsigned int armId, const double zPrismatic, const double zRotational, const double yRotational, const bool pumpEnabled,
                                 const bool valveOpen);
     virtual void sendHatCommand(const double height, const bool pumpEnabled, const bool valveOpen);

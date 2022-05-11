@@ -68,6 +68,16 @@ void UDPDucklink::sendPoseReport(const PointOriented& pose) {
     sendMessage(msg);
 }
 
+void UDPDucklink::sendPoseCommand(const PointOriented& pose) {
+    protoduck::Message msg;
+    auto* poseCommand = msg.mutable_pos();
+    poseCommand->set_x(pose.x());
+    poseCommand->set_y(pose.y());
+    poseCommand->set_theta(pose.theta().value());
+    msg.set_msg_type(protoduck::Message_MsgType::Message_MsgType_COMMAND);
+    sendMessage(msg);
+}
+
 void UDPDucklink::sendArmCommand(const unsigned int armId, const double zPrismatic, const double zRotational, const double yRotational, const bool pumpEnabled,
                                  const bool valveOpen) {
     protoduck::Message msg;

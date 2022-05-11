@@ -3,8 +3,12 @@
 #include "Navigation/PurePursuitControl.h"
 
 namespace rd {
-Locomotion::Locomotion(PositionControlParameters positionControlParameters)
-    : parameters_(positionControlParameters), positionControlType_(IDLE), positionControl_(positionControlParameters, 2, 150.), targetSpeed_(0., 0., 0.) {}
+Locomotion::Locomotion(PositionControlParameters positionControlParameters, CommunicationOutputBase& communicationBase)
+    : communicationBase_(communicationBase),
+      parameters_(positionControlParameters),
+      positionControlType_(IDLE),
+      positionControl_(positionControlParameters, 2, 150.),
+      targetSpeed_(0., 0., 0.) {}
 
 void Locomotion::followTrajectory(const Trajectory& traj) {
     positionControl_.setTrajectory(traj);
@@ -12,9 +16,10 @@ void Locomotion::followTrajectory(const Trajectory& traj) {
 }
 
 Speed Locomotion::run(const double dt) {
+    Speed outputSpeed = Speed(0., 0., 0.);
     switch (positionControlType_) {
         case IDLE:
-            return Speed(0., 0., 0.);
+            outputSpeed = Speed(0., 0., 0.);
             break;
 
         case POSITION_CONTROL: {
@@ -33,12 +38,14 @@ Speed Locomotion::run(const double dt) {
             }
             // Scale the speed according to outerX and innerX (>outerX fullSpeed, <innerX full stop, percent factor between the two)
             double maxSpeedObstacles = parameters_.maxLinearSpeed * std::max(0., std::min(1., (minX - innerX) / (outerX - innerX)));
-            return positionControl_.computeSpeed(robotPose_, robotSpeed_, dt, maxSpeedObstacles);
+            outputSpeed = positionControl_.computeSpeed(robotPose_, robotSpeed_, dt, maxSpeedObstacles);
         } break;
 
         default:
+            outputSpeed = Speed(0., 0., 0.);
             break;
     }
-    return Speed(0., 0., 0.);
+    communicationBase_.sendSpeed(outputSpeed);
+    return outputSpeed;
 }
 }  // namespace rd
