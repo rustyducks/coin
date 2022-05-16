@@ -17,6 +17,7 @@ class Table {
 
    protected:
     std::vector<std::shared_ptr<Hexa>> hexas_;
+    std::unordered_map<std::string, HexaPtr> nameToHexa_;
     std::unordered_map<eDispenser, Dispenser> dispensers_;
     // std::unordered_map<eColor, void> galleries_;        // TODO
     std::unordered_map<eColor, WorkShed> sheds_;
