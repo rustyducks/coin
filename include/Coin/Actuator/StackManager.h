@@ -5,6 +5,7 @@
 #include "Coin/Actuator/Arm.h"
 #include "Coin/Actuator/Hat.h"
 #include "Coin/Communication/CommunicationBase.h"
+#include "Coin/Table/Hexa.h"
 
 namespace rd {
 class StackManager : public ActuatorBase<ProcedureInput> {
@@ -17,7 +18,22 @@ class StackManager : public ActuatorBase<ProcedureInput> {
     void sendTurnAndPutOnStack(const int armid, const int height);
     void sendTakeFromStack(const int armid, const int height);
 
+    void pushHexaOnStack(const HexaPtr hexa) { inStack_.push_back(hexa); }
+    void popHexaFromStack() {
+        if (inStack_.size() == 0) {
+            return;
+        }
+        inStack_.pop_back();
+    }
+    size_t getStackSize() { return inStack_.size(); }
+    double getStackHeight() { return inStack_.size() * HEXA_HEIGHT; }
+
+    ProcedureInput::eStatus getStatus() { return status_; }
+
+    const double BASE_STACK_TO_ARM_HOME_HEIGHT = 150.;
+
    protected:
+    const double HEXA_HEIGHT = 15.;
     enum eProcedure {
         None,
         Home,
@@ -31,6 +47,8 @@ class StackManager : public ActuatorBase<ProcedureInput> {
     ProcedureCommandSenderInterface& procedureSender_;
     eProcedure lastProcedure_;
     ProcedureInput::eStatus status_;
+
+    std::vector<HexaPtr> inStack_;
 };
 }  // namespace rd
 
