@@ -10,7 +10,18 @@
 
 namespace rd {
 
-enum eInput { GO_TO_POINT, GO_TO_POINT_ORIENTED, POSITION_REPORT, SPEED_REPORT, ARM_STATUS, HAT_STATUS, SPEED_COMMAND, LIDAR_ADVERSARIES, PROCEDURE_STATUS };
+enum eInput {
+    GO_TO_POINT,
+    GO_TO_POINT_ORIENTED,
+    POSITION_REPORT,
+    SPEED_REPORT,
+    ARM_STATUS,
+    HAT_STATUS,
+    SPEED_COMMAND,
+    LIDAR_ADVERSARIES,
+    PROCEDURE_STATUS,
+    HMI_REPORT
+};
 
 class Input {
    public:
@@ -129,6 +140,14 @@ class ProcedureInput : public Input {
     eStatus status_;
 };
 
+class HMIInput : public Input {
+   public:
+    HMIInput(bool button, bool color, uint32_t scoreDisplay, uint32_t led, bool tirette)
+        : Input(HMI_REPORT), button_(button), color_(color), tirette_(tirette), scoreDisplay_(scoreDisplay), led_(led) {}
+    bool button_, color_, tirette_;
+    uint32_t scoreDisplay_, led_;
+};
+
 class CommunicationInputBase {
    public:
     virtual std::vector<std::unique_ptr<Input>> getInputs() = 0;
@@ -154,6 +173,11 @@ class HatCommandSenderInterface {
 class ProcedureCommandSenderInterface {
    public:
     virtual void sendProcedureCommand(const unsigned int armId, const protoduck::Procedure_Proc procedure, const int param) = 0;
+};
+
+class HMICommandSenderInterface {
+   public:
+    virtual void sendHMICommand(const uint32_t scoreDisplay, const uint32_t led) = 0;
 };
 
 }  // namespace rd

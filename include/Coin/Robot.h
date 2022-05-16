@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "Coin/Actuator/Arm.h"
+#include "Coin/Actuator/HMI.h"
 #include "Coin/Actuator/Hat.h"
 #include "Coin/Actuator/StackManager.h"
 #include "Coin/Locomotion/Locomotion.h"
@@ -15,6 +16,7 @@ class Robot {
     Arm arm2;
     Hat hat;
     StackManager stackManager;
+    HMI hmi;
 
    protected:
 };

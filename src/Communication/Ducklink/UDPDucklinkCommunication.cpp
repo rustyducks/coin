@@ -36,6 +36,9 @@ std::vector<std::unique_ptr<Input>> UDPDucklink::getInputs() {
                     toReturn.push_back(std::make_unique<LidarAdversaries>(eInput::LIDAR_ADVERSARIES, adv));
                 } else if (msg.has_procedure()) {
                     toReturn.push_back(std::make_unique<ProcedureInput>(eInput::PROCEDURE_STATUS, msg.procedure().status()));
+                } else if (msg.has_hmi()) {
+                    toReturn.push_back(
+                        std::make_unique<HMIInput>(msg.hmi().bouton(), msg.hmi().color(), msg.hmi().hmi_display(), msg.hmi().led(), msg.hmi().tirette()));
                 }
             } else if (msg.msg_type() == protoduck::Message_MsgType::Message_MsgType_COMMAND) {
                 if (msg.has_speed()) {
@@ -116,4 +119,14 @@ void UDPDucklink::sendProcedureCommand(const unsigned int armId, const protoduck
     msg.set_msg_type(protoduck::Message_MsgType::Message_MsgType_COMMAND);
     sendMessage(msg);
 }
+
+void UDPDucklink::sendHMICommand(const uint32_t scoreDisplay, const uint32_t led) {
+    protoduck::Message msg;
+    protoduck::HMI* hmi = msg.mutable_hmi();
+    hmi->set_hmi_display(scoreDisplay);
+    hmi->set_led(led);
+    msg.set_msg_type(protoduck::Message_MsgType::Message_MsgType_COMMAND);
+    sendMessage(msg);
+}
+
 }  // namespace rd

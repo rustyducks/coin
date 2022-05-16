@@ -7,6 +7,7 @@
 #include <random>
 
 #include "Coin/Actuator/Arm.h"
+#include "Coin/Actuator/HMI.h"
 #include "Coin/Actuator/Hat.h"
 #include "Coin/Actuator/StackManager.h"
 #include "Coin/Communication/Ducklink/UDPDucklinkCommunication.h"
@@ -34,6 +35,7 @@ int main(int, char**) {
     rd::Arm arm2(rd::Arm::ArmID::ARM_2, ioDucklink);
     rd::Hat hat(ioDucklink);
     rd::StackManager stackman(arm1, arm2, hat, ioDucklink);
+    rd::HMI hmi(ioDucklink);
     const rd::PositionControlParameters robotParams = {
         200.,      // maxLinearAcceleration
         400.,      // maxLinearSpeed
@@ -111,6 +113,11 @@ int main(int, char**) {
                 auto& msg = static_cast<rd::HatInput&>(*input);
                 hat.updateState(msg);
             } else if (input->type() == rd::eInput::PROCEDURE_STATUS) {
+                auto& msg = static_cast<rd::ProcedureInput&>(*input);
+                stackman.updateState(msg);
+            } else if (input->type() == rd::eInput::HMI_REPORT) {
+                auto& msg = static_cast<rd::HMIInput&>(*input);
+                hmi.updateState(msg);
             }
         }
         for (const auto& input : lidarDucklink.getInputs()) {
