@@ -52,6 +52,10 @@ Speed Locomotion::run(const double dt) {
                 }
             }
             outputSpeed = positionControl_.computeSpeed(robotPose_, robotSpeed_, dt, maxSpeedObstacles);
+            if (positionControl_.isGoalReached()) {
+                outputSpeed = Speed(0., 0., 0.);
+                positionControlType_ = IDLE;
+            }
         } break;
 
         default:

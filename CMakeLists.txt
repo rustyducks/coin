@@ -57,12 +57,9 @@ if (NOT ${Ducklink_FOUND})
   FetchContent_MakeAvailable(Ducklink)
 endif()
 
+file(GLOB_RECURSE Coin_SRC CONFIGURE_DEPENDS "src/*.cpp")
 
-
-add_executable(Coin src/main.cpp src/Behavior/Slave.cpp src/Robot.cpp
-        src/Actuator/Arm.cpp src/Actuator/Hat.cpp src/Communication/Ducklink/UDPDucklinkCommunication.cpp 
-        src/Communication/UDPJson.cpp src/Locomotion/Locomotion.cpp src/Actuator/StackManager.cpp src/Table/Hexa.cpp src/Table/Dispenser.cpp 
-        src/Table/WorkShed.cpp src/Table/Table.cpp)
+add_executable(Coin ${Coin_SRC})
 target_include_directories(Coin PUBLIC include)
 target_link_libraries(Coin PUBLIC GeometryTools Navigation Ducklink Protoduck)
 set_target_properties(Coin PROPERTIES CXX_STANDARD 14)
