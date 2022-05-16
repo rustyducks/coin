@@ -12,8 +12,8 @@ class TakeHexaAction : public Action {
     virtual void deinit(Robot& robot) override;
     virtual bool isDeinit(Robot& robot) override;
 
-    void setOnSuccess(ActionPtr onSuccess);
-    void setOnVacuumError(ActionPtr onUnableToVacuum);
+    void setOnSuccess(ActionPtr onSuccess) { onSuccess_ = onSuccess; }
+    void setOnVacuumError(ActionPtr onUnableToVacuum) { onUnableToVacuum_ = onUnableToVacuum; }
 
     eIntegrityCheck checkIntegrity() override;
 
