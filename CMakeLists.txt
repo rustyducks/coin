@@ -57,13 +57,25 @@ if (NOT ${Ducklink_FOUND})
   FetchContent_MakeAvailable(Ducklink)
 endif()
 
-file(GLOB_RECURSE Coin_SRC CONFIGURE_DEPENDS "src/*.cpp")
+file(GLOB_RECURSE CoinDalek_SRC CONFIGURE_DEPENDS "src/*.cpp" EXC)
+list(FILTER CoinDalek_SRC EXCLUDE REGEX ".*src/mainCrolonome\.cpp$")
 
-add_executable(Coin ${Coin_SRC})
-target_include_directories(Coin PUBLIC include)
-target_link_libraries(Coin PUBLIC GeometryTools Navigation Ducklink Protoduck)
-set_target_properties(Coin PROPERTIES CXX_STANDARD 14)
-target_compile_options(Coin PRIVATE -Wall -Wextra -Wpedantic -Werror)
+file(GLOB_RECURSE CoinCrolonome_SRC CONFIGURE_DEPENDS "src/*.cpp" EXC)
+list(FILTER CoinCrolonome_SRC EXCLUDE REGEX ".*src/mainDalek\.cpp$")
+
+
+
+add_executable(CoinDalek ${CoinDalek_SRC})
+target_include_directories(CoinDalek PUBLIC include)
+target_link_libraries(CoinDalek PUBLIC GeometryTools Navigation Ducklink Protoduck)
+set_target_properties(CoinDalek PROPERTIES CXX_STANDARD 14)
+target_compile_options(CoinDalek PRIVATE -Wall -Wextra -Wpedantic -Werror)
+
+add_executable(CoinCrolonome ${CoinCrolonome_SRC})
+target_include_directories(CoinCrolonome PUBLIC include)
+target_link_libraries(CoinCrolonome PUBLIC GeometryTools Navigation Ducklink Protoduck)
+set_target_properties(CoinCrolonome PROPERTIES CXX_STANDARD 14)
+target_compile_options(CoinCrolonome PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 
 

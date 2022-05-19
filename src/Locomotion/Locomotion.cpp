@@ -49,9 +49,12 @@ Speed Locomotion::run(const double dt) {
                 robotBlocked_ = newRobotBlocked;
                 if (newRobotBlocked) {
                     robotBlockedSince_ = std::chrono::steady_clock::now();
+                    std::cout << "[Locomotion] Robot is blocked" << std::endl;
+                } else {
+                    std::cout << "[Locomotion] Robot is free again" << std::endl;
                 }
             }
-            outputSpeed = positionControl_.computeSpeed(robotPose_, robotSpeed_, dt, maxSpeedObstacles);
+            outputSpeed = positionControl_.computeSpeed(robotPose_, lastCommand_, dt, maxSpeedObstacles);
             if (positionControl_.isGoalReached()) {
                 outputSpeed = Speed(0., 0., 0.);
                 positionControlType_ = IDLE;

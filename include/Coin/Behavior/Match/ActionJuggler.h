@@ -10,6 +10,8 @@ class ActionJuggler : public BehaviorBase {
     ActionJuggler(Robot& robot);
     virtual void tick() override;
 
+    bool setFirstAction(ActionPtr action);
+
    protected:
     enum eActionState { GO_TO, FSM, DEINIT, RETRACT };
     eActionState actionState_;

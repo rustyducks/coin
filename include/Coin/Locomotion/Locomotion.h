@@ -34,6 +34,8 @@ class Locomotion {
 
     bool isGoalReached() const { return positionControlType_ == IDLE; }
 
+    void stop() { positionControlType_ = IDLE; }
+
    protected:
     PointOriented robotPose_;
     Speed robotSpeed_;

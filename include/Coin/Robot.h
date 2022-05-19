@@ -6,11 +6,16 @@
 #include "Coin/Actuator/HMI.h"
 #include "Coin/Actuator/Hat.h"
 #include "Coin/Actuator/StackManager.h"
+#include "Coin/Communication/Ducklink/UDPDucklinkCommunication.h"
 #include "Coin/Locomotion/Locomotion.h"
 
 namespace rd {
 class Robot {
    public:
+    Robot(UDPDucklink& motorDucklink, UDPDucklink& ioDucklink, UDPDucklink& lidarDucklink, PositionControlParameters& positionControlParams);
+
+    void sense();
+
     Locomotion locomotion;
     Arm arm1;
     Arm arm2;
@@ -19,6 +24,9 @@ class Robot {
     HMI hmi;
 
    protected:
+    rd::UDPDucklink& motorDucklink_;
+    rd::UDPDucklink& ioDucklink_;
+    rd::UDPDucklink& lidarDucklink_;
 };
 }  // namespace rd
 

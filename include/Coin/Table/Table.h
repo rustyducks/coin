@@ -15,6 +15,8 @@ class Table {
 
     Table();
 
+    HexaPtr getHexaByName(const std::string& name) { return nameToHexa_.at(name); }
+
    protected:
     std::vector<std::shared_ptr<Hexa>> hexas_;
     std::unordered_map<std::string, HexaPtr> nameToHexa_;

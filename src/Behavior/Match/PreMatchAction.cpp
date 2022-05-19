@@ -1,7 +1,12 @@
 #include "Coin/Behavior/Match/PreMatchAction.h"
 
 namespace rd {
-PreMatchAction::PreMatchAction() : Action("Prematch", nullptr, nullptr), state_(IDLE) {}
+PreMatchAction::PreMatchAction(const PointOriented& yellowStart, const PointOriented& purpleStart)
+    : Action(
+          "Prematch", [](const PointOriented&) { return nullptr; }, [](const PointOriented&) { return nullptr; }),
+      state_(IDLE),
+      yellowStart_(yellowStart),
+      purpleStart_(purpleStart) {}
 
 void PreMatchAction::deinit(Robot&) {}
 
@@ -11,14 +16,29 @@ ActionPtr PreMatchAction::run(Robot& robot) {
     switch (state_) {
         case IDLE:
             robot.hmi.setScoreDisplay(0);
-            robot.hmi.setLed(HMI::eLedColor::YELLOW);
-            isYellowSelected_ = true;
-            state_ = YELLOW_SELECTED;
+            robot.stackManager.sendHome(0);
+            state_ = INITIALIZING_ARM1;
+            break;
+        case INITIALIZING_ARM1:
+            if (robot.stackManager.getStatus() == ProcedureInput::SUCCESS) {
+                robot.stackManager.sendHome(1);
+                state_ = INITIALIZING_ARM2;
+            }
+            break;
+        case INITIALIZING_ARM2:
+            if (robot.stackManager.getStatus() == ProcedureInput::SUCCESS) {
+                robot.hmi.setLed(HMI::eLedColor::YELLOW);
+                robot.locomotion.forceRobotPose(yellowStart_);
+                isYellowSelected_ = true;
+                state_ = YELLOW_SELECTED;
+            }
             break;
         case YELLOW_SELECTED:
             if (robot.hmi.color()) {
+                std::cout << robot.hmi.color() << std::endl;
                 robot.hmi.setLed(HMI::eLedColor::MAGENTA);
                 isYellowSelected_ = false;
+                robot.locomotion.forceRobotPose(purpleStart_);
                 state_ = PURPLE_SELECTED;
             }
             if (!robot.hmi.tirette()) {
@@ -34,6 +54,7 @@ ActionPtr PreMatchAction::run(Robot& robot) {
             if (!robot.hmi.color()) {
                 robot.hmi.setLed(HMI::eLedColor::YELLOW);
                 isYellowSelected_ = true;
+                robot.locomotion.forceRobotPose(yellowStart_);
                 state_ = YELLOW_SELECTED;
             }
             if (!robot.hmi.tirette()) {

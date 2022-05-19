@@ -1,8 +1,9 @@
 #include "Coin/Behavior/Match/HexaAction.h"
 
 namespace rd {
-TakeHexaAction::TakeHexaAction(rd::TrajectoryPtr goTo, rd::TrajectoryPtr retract, Arm::ArmID armid, HexaPtr hexa)
-    : Action("Take_" + hexa_->name_, goTo, retract), state_(TakeHexaAction::IDLE), armId_(armid), hexa_(hexa) {}
+TakeHexaAction::TakeHexaAction(std::function<PathPtr(const PointOriented&)> goTo, std::function<PathPtr(const PointOriented&)> retract, Arm::ArmID armid,
+                               HexaPtr hexa)
+    : Action("Take_" + hexa->name_, goTo, retract), state_(TakeHexaAction::IDLE), armId_(armid), hexa_(hexa) {}
 
 void TakeHexaAction::deinit(Robot& robot) { robot.stackManager.sendHome(armId_); }
 
@@ -43,6 +44,10 @@ ActionPtr TakeHexaAction::run(Robot& robot) {
 Action::eIntegrityCheck TakeHexaAction::checkIntegrity() {
     if (onSuccess_ == nullptr) {
         logIntegrity(ERROR, "No onsuccess action defined.");
+        return Action::eIntegrityCheck::ERROR;
+    }
+    if (hexa_ == nullptr) {
+        logIntegrity(ERROR, "Defined hexa is nullptr.");
         return Action::eIntegrityCheck::ERROR;
     }
     eIntegrityCheck onSuccessCheck = onSuccess_->checkIntegrity();

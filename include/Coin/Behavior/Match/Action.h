@@ -10,29 +10,29 @@ namespace rd {
 
 class Action;
 
-typedef std::shared_ptr<Trajectory> TrajectoryPtr;
+typedef std::shared_ptr<Path> PathPtr;
 typedef std::shared_ptr<Action> ActionPtr;
 
 class Action {
    protected:
-    enum eIntegrityCheck { OK, WARNING, ERROR };
     std::string name_;
-    TrajectoryPtr goToApproachTraj_;
-    TrajectoryPtr retractTraj_;
+    std::function<PathPtr(const PointOriented&)> goToApproachTraj_;
+    std::function<PathPtr(const PointOriented&)> retractTraj_;
 
     ActionPtr onGoToBlocked_;
 
     double blockedDuration_;
 
    public:
+    enum eIntegrityCheck { OK, WARNING, ERROR };
     // Action(Trajectory& goToApproach, const Point& entryPoint, ActionFSM& actionFSM, const Trajectory& retractTrajectory);
-    Action(const std::string& name, TrajectoryPtr goTo, TrajectoryPtr retract);
+    Action(const std::string& name, std::function<PathPtr(const PointOriented&)> goTo, std::function<PathPtr(const PointOriented&)> retract);
 
     virtual ActionPtr onGoToBlocked() { return onGoToBlocked_; }
     virtual void setOnGoToBlocked(ActionPtr onGoToBlocked) { onGoToBlocked_ = onGoToBlocked; }
 
-    const TrajectoryPtr getGoTo() { return goToApproachTraj_; }
-    const TrajectoryPtr getRetract() { return retractTraj_; }
+    const PathPtr getGoTo(const PointOriented& robotPose) { return goToApproachTraj_(robotPose); }
+    const PathPtr getRetract(const PointOriented& robotPose) { return retractTraj_(robotPose); }
 
     double blockedDuration() { return blockedDuration_; }
     void setBlockedDuration(double blockedDuration) { blockedDuration_ = blockedDuration; }
@@ -57,6 +57,8 @@ class Action {
         }
         return eIntegrityCheck::OK;
     }
+
+    const std::string& name() { return name_; }
 };
 
 }  // namespace rd
