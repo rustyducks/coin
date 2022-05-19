@@ -10,7 +10,8 @@ Locomotion::Locomotion(PositionControlParameters positionControlParameters, Comm
       adversaries_(),
       parameters_(positionControlParameters),
       positionControlType_(IDLE),
-      positionControl_(positionControlParameters, 2, 150.),
+      positionControl_(positionControlParameters, 1.5, 150.),
+      goToPointHolonomic_(positionControlParameters, 1.5),
       targetSpeed_(0., 0., 0.),
       lastCommand_(0., 0., 0.),
       robotBlocked_(false),
@@ -19,6 +20,11 @@ Locomotion::Locomotion(PositionControlParameters positionControlParameters, Comm
 void Locomotion::followTrajectory(const Trajectory& traj) {
     positionControl_.setTrajectory(traj);
     positionControlType_ = POSITION_CONTROL;
+}
+
+void Locomotion::goToPointHolonomic(const PointOriented& pt) {
+    goToPointHolonomic_.setTargetPoint(pt);
+    positionControlType_ = GO_TO_HOLONOMIC;
 }
 
 Speed Locomotion::run(const double dt) {
@@ -56,6 +62,14 @@ Speed Locomotion::run(const double dt) {
             }
             outputSpeed = positionControl_.computeSpeed(robotPose_, lastCommand_, dt, maxSpeedObstacles);
             if (positionControl_.isGoalReached()) {
+                outputSpeed = Speed(0., 0., 0.);
+                positionControlType_ = IDLE;
+            }
+        } break;
+
+        case GO_TO_HOLONOMIC: {
+            outputSpeed = goToPointHolonomic_.computeSpeed(robotPose_, lastCommand_, dt, 1200.);
+            if (goToPointHolonomic_.isGoalReached()) {
                 outputSpeed = Speed(0., 0., 0.);
                 positionControlType_ = IDLE;
             }

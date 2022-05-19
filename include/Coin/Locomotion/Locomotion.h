@@ -2,6 +2,7 @@
 #define LOCOMOTION_H
 
 #include "Coin/Communication/CommunicationBase.h"
+#include "Navigation/GoToPointHolonomic.h"
 #include "Navigation/PositionControlBase.h"
 #include "Navigation/PurePursuitControl.h"
 #include "chrono"
@@ -16,6 +17,8 @@ class Locomotion {
     Speed run(const double dt);
 
     void followTrajectory(const Trajectory& traj);
+
+    void goToPointHolonomic(const PointOriented& pt);
 
     void updateRobotPose(PointOrientedInput pose) { robotPose_ = pose.getPoint(); }
     void updateRobotSpeed(SpeedInput speed) { robotSpeed_ = speed.getSpeed(); }
@@ -45,9 +48,11 @@ class Locomotion {
     std::vector<std::pair<int, Point>> adversaries_;
 
     PositionControlParameters parameters_;
-    enum ePositionControlType { IDLE, SPEED, POSITION_CONTROL };
+    enum ePositionControlType { IDLE, SPEED, POSITION_CONTROL, GO_TO_HOLONOMIC, GO_TO_DIFF };
     ePositionControlType positionControlType_;
     PurePursuitControl positionControl_;
+    GoToPointHolonomic goToPointHolonomic_;
+
     Speed targetSpeed_;
 
     Speed lastCommand_;
