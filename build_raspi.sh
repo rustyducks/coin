@@ -40,4 +40,6 @@ cmake -DCMAKE_INSTALL_PREFIX=$RUSTYDUCKS_WS_PATH_ARM -DCMAKE_BUILD_TYPE=$BUILD_T
 make -j8
 #make install
 
-scp Coin dalek:~/
+scp CoinDalek dalek:~/ || true
+
+scp CoinCrolonome crolonome:~/ || true
