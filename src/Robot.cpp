@@ -53,9 +53,6 @@ void Robot::sense() {
         if (input->type() == rd::eInput::LIDAR_ADVERSARIES) {
             auto& msg = static_cast<rd::LidarAdversaries&>(*input);
             locomotion.updateAdversaries(msg);
-            for (const auto& a : msg.adversaries_) {
-                std::cout << a.first << ": " << a.second << std::endl;
-            }
         }
     }
 }
