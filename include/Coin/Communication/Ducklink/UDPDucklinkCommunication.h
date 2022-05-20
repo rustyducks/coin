@@ -22,6 +22,7 @@ class UDPDucklink : public CommunicationOutputBase,
                     public HatCommandSenderInterface,
                     public ProcedureCommandSenderInterface,
                     public HMICommandSenderInterface,
+                    public FingerCommandSenderInterface,
                     public UDPDucklinkClient {
    public:
     UDPDucklink(const std::string& addr, const int port);
@@ -33,6 +34,7 @@ class UDPDucklink : public CommunicationOutputBase,
     virtual void sendHatCommand(const double height, const bool pumpEnabled, const bool valveOpen);
     virtual void sendProcedureCommand(const unsigned int armId, const protoduck::Procedure_Proc procedure, const int param) override;
     virtual void sendHMICommand(const uint32_t scoreDisplay, const uint32_t led) override;
+    virtual void sendFingerCommand(const int command) override;
 
     virtual std::vector<std::unique_ptr<Input>> getInputs() override;
 };

@@ -20,7 +20,8 @@ enum eInput {
     SPEED_COMMAND,
     LIDAR_ADVERSARIES,
     PROCEDURE_STATUS,
-    HMI_REPORT
+    HMI_REPORT,
+    RESISTOR_REPORT
 };
 
 class Input {
@@ -140,6 +141,12 @@ class ProcedureInput : public Input {
     eStatus status_;
 };
 
+class ResistorInput : public Input {
+   public:
+    ResistorInput(eInput type, const float resistorValue) : Input(type), resistorValue(resistorValue) {}
+    float resistorValue;
+};
+
 class HMIInput : public Input {
    public:
     HMIInput(bool button, bool color, uint32_t scoreDisplay, uint32_t led, bool tirette)
@@ -178,6 +185,11 @@ class ProcedureCommandSenderInterface {
 class HMICommandSenderInterface {
    public:
     virtual void sendHMICommand(const uint32_t scoreDisplay, const uint32_t led) = 0;
+};
+
+class FingerCommandSenderInterface {
+   public:
+    virtual void sendFingerCommand(const int command) = 0;
 };
 
 }  // namespace rd

@@ -11,6 +11,7 @@ Robot::Robot(UDPDucklink& motorDucklink, UDPDucklink& ioDucklink, UDPDucklink& l
       hat(ioDucklink),
       stackManager(arm1, arm2, hat, ioDucklink),
       hmi(ioDucklink),
+      finger(ioDucklink),
       motorDucklink_(motorDucklink),
       ioDucklink_(ioDucklink),
       lidarDucklink_(lidarDucklink) {}
@@ -43,6 +44,9 @@ void Robot::sense() {
         } else if (input->type() == rd::eInput::HMI_REPORT) {
             auto& msg = static_cast<rd::HMIInput&>(*input);
             hmi.updateState(msg);
+        } else if (input->type() == rd::eInput::RESISTOR_REPORT) {
+            auto& msg = static_cast<rd::ResistorInput&>(*input);
+            finger.updateState(msg);
         }
     }
     for (const auto& input : lidarDucklink_.getInputs()) {
@@ -55,4 +59,5 @@ void Robot::sense() {
         }
     }
 }
+
 }  // namespace rd

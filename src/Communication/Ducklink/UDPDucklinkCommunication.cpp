@@ -39,6 +39,8 @@ std::vector<std::unique_ptr<Input>> UDPDucklink::getInputs() {
                 } else if (msg.has_hmi()) {
                     toReturn.push_back(
                         std::make_unique<HMIInput>(msg.hmi().bouton(), msg.hmi().color(), msg.hmi().hmi_display(), msg.hmi().led(), msg.hmi().tirette()));
+                } else if (msg.has_resistance()) {
+                    toReturn.push_back(std::make_unique<ResistorInput>(eInput::RESISTOR_REPORT, msg.resistance().value()));
                 }
             } else if (msg.msg_type() == protoduck::Message_MsgType::Message_MsgType_COMMAND) {
                 if (msg.has_speed()) {
@@ -125,6 +127,15 @@ void UDPDucklink::sendHMICommand(const uint32_t scoreDisplay, const uint32_t led
     protoduck::HMI* hmi = msg.mutable_hmi();
     hmi->set_hmi_display(scoreDisplay);
     hmi->set_led(led);
+    msg.set_msg_type(protoduck::Message_MsgType::Message_MsgType_COMMAND);
+    sendMessage(msg);
+}
+
+void UDPDucklink::sendFingerCommand(const int command) {
+    protoduck::Message msg;
+    protoduck::Procedure* proc = msg.mutable_procedure();
+    proc->set_proc(protoduck::Procedure_Proc::Procedure_Proc_LANGUE);
+    proc->set_param(command);
     msg.set_msg_type(protoduck::Message_MsgType::Message_MsgType_COMMAND);
     sendMessage(msg);
 }

@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "Coin/Actuator/Arm.h"
+#include "Coin/Actuator/Finger.h"
 #include "Coin/Actuator/HMI.h"
 #include "Coin/Actuator/Hat.h"
 #include "Coin/Actuator/StackManager.h"
@@ -22,6 +23,7 @@ class Robot {
     Hat hat;
     StackManager stackManager;
     HMI hmi;
+    Finger finger;
 
    protected:
     rd::UDPDucklink& motorDucklink_;
