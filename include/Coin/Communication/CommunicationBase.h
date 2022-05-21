@@ -110,6 +110,7 @@ class ProcedureInput : public Input {
    public:
     enum eStatus {
         RUNNING,
+        RUNNING_FREE,
         SUCCESS,
         FAILURE,
         POSITION_UNREACHABLE,
@@ -131,6 +132,9 @@ class ProcedureInput : public Input {
                 break;
             case protoduck::Procedure_Status::Procedure_Status_UNABLE_VACUUM:
                 status_ = eStatus::UNABLE_VACUUM;
+                break;
+            case protoduck::Procedure_Status::Procedure_Status_RUNNING_FREE:
+                status_ = eStatus::RUNNING_FREE;
                 break;
             case protoduck::Procedure_Status::Procedure_Status_Procedure_Status_INT_MAX_SENTINEL_DO_NOT_USE_:
                 break;
