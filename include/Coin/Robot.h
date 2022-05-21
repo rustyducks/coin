@@ -6,6 +6,7 @@
 #include "Coin/Actuator/Finger.h"
 #include "Coin/Actuator/HMI.h"
 #include "Coin/Actuator/Hat.h"
+#include "Coin/Actuator/ReplicaHolder.h"
 #include "Coin/Actuator/StackManager.h"
 #include "Coin/Communication/Ducklink/UDPDucklinkCommunication.h"
 #include "Coin/Locomotion/Locomotion.h"
@@ -24,6 +25,7 @@ class Robot {
     StackManager stackManager;
     HMI hmi;
     Finger finger;
+    ReplicaHolder replicaHolder;
 
    protected:
     rd::UDPDucklink& motorDucklink_;

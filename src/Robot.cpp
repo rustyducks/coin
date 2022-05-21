@@ -12,6 +12,7 @@ Robot::Robot(UDPDucklink& motorDucklink, UDPDucklink& ioDucklink, UDPDucklink& l
       stackManager(arm1, arm2, hat, ioDucklink),
       hmi(ioDucklink),
       finger(ioDucklink),
+      replicaHolder(ioDucklink),
       motorDucklink_(motorDucklink),
       ioDucklink_(ioDucklink),
       lidarDucklink_(lidarDucklink) {}
