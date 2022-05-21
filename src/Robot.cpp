@@ -13,6 +13,7 @@ Robot::Robot(UDPDucklink& motorDucklink, UDPDucklink& ioDucklink, UDPDucklink& l
       hmi(ioDucklink),
       finger(ioDucklink),
       replicaHolder(ioDucklink),
+      statuetteArm(ioDucklink),
       motorDucklink_(motorDucklink),
       ioDucklink_(ioDucklink),
       lidarDucklink_(lidarDucklink) {}
