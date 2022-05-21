@@ -7,6 +7,7 @@
 #include <random>
 
 #include "Coin/Actuator/Arm.h"
+#include "Coin/Actuator/Finger.h"
 #include "Coin/Actuator/HMI.h"
 #include "Coin/Actuator/Hat.h"
 #include "Coin/Actuator/StackManager.h"
@@ -33,18 +34,25 @@ int main(int, char**) {
     //  rd::UDPDucklinkInput udpClientAnatidaeServer("0.0.0.0", 9999);
 
     rd::PositionControlParameters robotParams = {
-        100.,      // maxLinearAcceleration
-        400.,      // maxLinearSpeed
-        2.0,       // maxRotationalAcceleration
-        2.5,       // maxRotationalSpeed
+        200.,      // maxLinearAcceleration
+        1000.,     // maxLinearSpeed
+        0.5,       // maxRotationalAcceleration
+        1.5,       // maxRotationalSpeed
         5.,        // admittedLinearPositionError
         0.045,     // admittedAnglePositionError
         40.,       // minLinearSpeed
         M_PI / 8.  // minRotationalSpeed
     };
 
-    rd::Robot dalek(motorDucklink, ioDucklink, lidarDucklink, robotParams);
-    rd::ActionJuggler actionJuggler = rd::createStrat1(dalek, table);
+    rd::Robot crolonome(motorDucklink, ioDucklink, lidarDucklink, robotParams);
+    crolonome.locomotion.forceRobotPose({90., 1138.15, 0.0});
+    // Statuette 280, 360
+
+    crolonome.locomotion.goToPointHolonomic({700., 300., -150. * M_PI / 180.});
+    crolonome.finger.retractFinger();
+
+    int state = 0;
+    // rd::ActionJuggler actionJuggler = rd::createStrat1(dalek, table);
 
     std::default_random_engine generator;
     std::chrono::steady_clock::time_point lastControl = std::chrono::steady_clock::now();
@@ -56,7 +64,8 @@ int main(int, char**) {
     //  rd::Slave behavior(mainRobot);
 
     while (true) {
-        dalek.sense();
+        crolonome.sense();
+
         // Update sensor values
         /*for (const auto& input : udpClientAnatidaeServer.getInputs()) {
             std::cout << input->type() << std::endl;
@@ -92,13 +101,16 @@ int main(int, char**) {
             if (dtBehavior >= 0.2 * 1.2) {
                 std::cout << "Warning behavior loop exceeded by " << dtBehavior - 0.2 << "s" << std::endl;
             }
-            actionJuggler.tick();
+            /*for (const auto a : crolonome.locomotion.getAdversaries()) {
+                std::cout << a.second << std::endl;
+            }*/
+            // actionJuggler.tick();
             lastBehavior = now;
         }
 
         double dt = std::chrono::duration_cast<std::chrono::microseconds>(now - lastControl).count() / 1000000.;
         rd::Speed speedCmd;
-        if (dt > 0.05) {
+        if (dt > 0.1) {
             /*if (dt > 5.10) {
                 std::cout << "Position Control loop missed by: " << dt - 5. << "s" << std::endl;
             }*/
@@ -108,7 +120,94 @@ int main(int, char**) {
             lastControl = now;
             // std::cout << "dt: " << dt << std::endl;
             // std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-            speedCmd = dalek.locomotion.run(dt);
+            speedCmd = crolonome.locomotion.run(dt);
+            if (crolonome.locomotion.isGoalReached()) {
+                if (state == 0) {
+                    crolonome.locomotion.goToPointHolonomic({1777.5, 230., -150. * M_PI / 180.});
+                    state++;
+                } else if (state == 1) {
+                    crolonome.locomotion.goToPointHolonomic({1777.5, 50., -150. * M_PI / 180.});
+                    state++;
+                } else if (state == 2) {
+                    crolonome.locomotion.forceRobotPose({crolonome.locomotion.robotPose().x(), 90., -150. * M_PI / 180.});
+                    if (crolonome.finger.isTouching() == rd::Finger::YELLOW) {
+                        crolonome.finger.deployFinger();
+                    }
+                    crolonome.locomotion.goToPointHolonomic({1593., 230, -150. * M_PI / 180.});
+                    state++;
+                } else if (state == 3) {
+                    crolonome.locomotion.goToPointHolonomic({1593., 50., -150. * M_PI / 180.});
+                    ioDucklink.sendFingerCommand(0);
+                    state++;
+                } else if (state == 4) {
+                    crolonome.locomotion.forceRobotPose({crolonome.locomotion.robotPose().x(), 90., -150. * M_PI / 180.});
+                    if (crolonome.finger.isTouching() == rd::Finger::YELLOW) {
+                        crolonome.finger.deployFinger();
+                    }
+                    crolonome.locomotion.goToPointHolonomic({1407.5, 230., -150. * M_PI / 180.});
+                    state++;
+                } else if (state == 5) {
+                    crolonome.locomotion.goToPointHolonomic({1407.5, 50., -150. * M_PI / 180.});
+                    ioDucklink.sendFingerCommand(0);
+                    state++;
+                }
+
+                else if (state == 6) {
+                    crolonome.locomotion.forceRobotPose({crolonome.locomotion.robotPose().x(), 90., -150. * M_PI / 180.});
+                    if (crolonome.finger.isTouching() == rd::Finger::YELLOW) {
+                        crolonome.finger.deployFinger();
+                    }
+                    crolonome.locomotion.goToPointHolonomic({1222.5, 230., -150. * M_PI / 180.});
+                    state++;
+                } else if (state == 7) {
+                    crolonome.locomotion.goToPointHolonomic({1222.5, 50., -150. * M_PI / 180.});
+                    ioDucklink.sendFingerCommand(0);
+                    state++;
+                } else if (state == 8) {
+                    crolonome.locomotion.forceRobotPose({crolonome.locomotion.robotPose().x(), 90., -150. * M_PI / 180.});
+                    if (crolonome.finger.isTouching() == rd::Finger::YELLOW) {
+                        crolonome.finger.deployFinger();
+                    }
+                    crolonome.locomotion.goToPointHolonomic({1037.5, 230., -150. * M_PI / 180.});
+                    state++;
+                } else if (state == 9) {
+                    crolonome.locomotion.goToPointHolonomic({1037.5, 50., -150. * M_PI / 180.});
+                    ioDucklink.sendFingerCommand(0);
+                    state++;
+                } else if (state == 10) {
+                    crolonome.locomotion.forceRobotPose({crolonome.locomotion.robotPose().x(), 90., -150. * M_PI / 180.});
+                    if (crolonome.finger.isTouching() == rd::Finger::YELLOW) {
+                        crolonome.finger.deployFinger();
+                    }
+                    crolonome.locomotion.goToPointHolonomic({852.5, 230., -150. * M_PI / 180.});
+                    state++;
+                } else if (state == 11) {
+                    crolonome.locomotion.goToPointHolonomic({852.5, 50., -150. * M_PI / 180.});
+                    ioDucklink.sendFingerCommand(0);
+                    state++;
+                } else if (state == 12) {
+                    crolonome.locomotion.forceRobotPose({crolonome.locomotion.robotPose().x(), 90., -150. * M_PI / 180.});
+                    if (crolonome.finger.isTouching() == rd::Finger::YELLOW) {
+                        crolonome.finger.deployFinger();
+                    }
+                    crolonome.locomotion.goToPointHolonomic({667.5, 230., -150. * M_PI / 180.});
+                    state++;
+                } else if (state == 13) {
+                    crolonome.locomotion.goToPointHolonomic({667.5, 50., -150. * M_PI / 180.});
+                    ioDucklink.sendFingerCommand(0);
+                    state++;
+                } else if (state == 14) {
+                    crolonome.locomotion.forceRobotPose({crolonome.locomotion.robotPose().x(), 90., -150. * M_PI / 180.});
+                    if (crolonome.finger.isTouching() == rd::Finger::YELLOW) {
+                        crolonome.finger.deployFinger();
+                    }
+                    crolonome.locomotion.goToPointHolonomic({1037.5, 1000., 0.});
+                    state++;
+                } else if (state == 15) {
+                    ioDucklink.sendFingerCommand(0);
+                    state++;
+                }
+            }
             // std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
             // double exet = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000000.;
             // std::cout << "exec time: " << exet << std::endl;
@@ -121,8 +220,8 @@ int main(int, char**) {
             std::cout << "Speed: " << robotSpeed << std::endl;
             std::cout << "Speed Command: " << speedCmd << std::endl;*/
             udpClientJugglerPlot.sendSpeedJson(speedCmd, "speed_cmd");
-            udpClientJugglerPlot.sendSpeedJson(dalek.locomotion.robotSpeed(), "robot_speed");
-            udpClientJugglerPlot.sendPointOrientedJson(dalek.locomotion.robotPose(), "robot_pose");
+            udpClientJugglerPlot.sendSpeedJson(crolonome.locomotion.robotSpeed(), "robot_speed");
+            udpClientJugglerPlot.sendPointOrientedJson(crolonome.locomotion.robotPose(), "robot_pose");
         }
         /*double dtSimu = std::chrono::duration_cast<std::chrono::microseconds>(now - lastSimu).count() / 1000000.;
                 if (dtSimu > 0.01) {

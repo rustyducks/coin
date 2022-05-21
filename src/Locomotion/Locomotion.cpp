@@ -11,7 +11,7 @@ Locomotion::Locomotion(PositionControlParameters positionControlParameters, Comm
       parameters_(positionControlParameters),
       positionControlType_(IDLE),
       positionControl_(positionControlParameters, 1.5, 150.),
-      goToPointHolonomic_(positionControlParameters, 1.5),
+      goToPointHolonomic_(positionControlParameters, 1.7),
       targetSpeed_(0., 0., 0.),
       lastCommand_(0., 0., 0.),
       robotBlocked_(false),
@@ -35,32 +35,7 @@ Speed Locomotion::run(const double dt) {
             break;
 
         case POSITION_CONTROL: {
-            const double maxY = 200;
-            const double outerX = 500;
-            const double innerX = 250;
-            double minX = 99999999.;
-            for (const auto& adv : adversaries_) {
-                // Check for the closest adversary in a tube (-maxY, maxY) in front of the robot
-                Point robot2adv = adv.second.transformIn(robotPose_);
-                if (std::abs(robot2adv.y()) <= maxY) {
-                    if (robot2adv.x() < minX) {  // Forward
-                        minX = robot2adv.x();
-                    }
-                }
-            }
-            // Scale the speed according to outerX and innerX (>outerX fullSpeed, <innerX full stop, percent factor between the two)
-            double maxSpeedObstacles = parameters_.maxLinearSpeed * std::max(0., std::min(1., (minX - innerX) / (outerX - innerX)));
-            bool newRobotBlocked = maxSpeedObstacles <= 0.;
-            if (newRobotBlocked != robotBlocked_) {
-                robotBlocked_ = newRobotBlocked;
-                if (newRobotBlocked) {
-                    robotBlockedSince_ = std::chrono::steady_clock::now();
-                    std::cout << "[Locomotion] Robot is blocked" << std::endl;
-                } else {
-                    std::cout << "[Locomotion] Robot is free again" << std::endl;
-                }
-            }
-            outputSpeed = positionControl_.computeSpeed(robotPose_, lastCommand_, dt, maxSpeedObstacles);
+            outputSpeed = positionControl_.computeSpeed(robotPose_, lastCommand_, dt, 0.);
             if (positionControl_.isGoalReached()) {
                 outputSpeed = Speed(0., 0., 0.);
                 positionControlType_ = IDLE;
@@ -68,11 +43,47 @@ Speed Locomotion::run(const double dt) {
         } break;
 
         case GO_TO_HOLONOMIC: {
-            outputSpeed = goToPointHolonomic_.computeSpeed(robotPose_, lastCommand_, dt, 1200.);
+            Speed computedSpeed = goToPointHolonomic_.computeSpeed(robotPose_, lastCommand_, dt, 1200.);
             if (goToPointHolonomic_.isGoalReached()) {
                 outputSpeed = Speed(0., 0., 0.);
                 positionControlType_ = IDLE;
             }
+            double trajAngle = std::atan2(computedSpeed.vy(), computedSpeed.vx());
+            double c = std::cos(trajAngle);
+            double s = std::sin(trajAngle);
+            const double tubeHalfWidth = 200;
+            const double tubeInnerLength = 250.;
+            const double tubeOuterLength = 400.;
+            double correctedLinearSpeed = computedSpeed.linearSpeed();
+            double minX = 99999999.;
+            for (const auto& adv : adversaries_) {
+                // Check for the closest adversary in a tube (-maxY, maxY) in front of the robot
+                Point robot2adv = adv.second.transformIn(robotPose_);
+                Point advInTrajFrame = Point(robot2adv.x() * c + robot2adv.y() * s, -robot2adv.x() * s + robot2adv.y() * c);
+                if (std::abs(advInTrajFrame.y()) <= tubeHalfWidth) {
+                    if (advInTrajFrame.x() > 0 && advInTrajFrame.x() < minX) {  // Forward
+                        minX = advInTrajFrame.x();
+                    }
+                }
+            }
+            correctedLinearSpeed = correctedLinearSpeed * std::max(0., std::min(1., (minX - tubeInnerLength) / (tubeOuterLength - tubeInnerLength)));
+            if (correctedLinearSpeed < computedSpeed.linearSpeed()) {
+                goToPointHolonomic_.slowedDown();
+            }
+            if (correctedLinearSpeed <= parameters_.minLinearSpeed && std::abs(computedSpeed.vtheta()) < parameters_.minRotationalSpeed) {
+                if (!robotBlocked_) {
+                    robotBlocked_ = true;
+                    robotBlockedSince_ = std::chrono::steady_clock::now();
+                    std::cout << "[Locomotion] Robot is blocked" << std::endl;
+                }
+                outputSpeed = Speed(0., 0., 0.);
+            } else {
+                if (robotBlocked_) {
+                    robotBlocked_ = false;
+                    std::cout << "[Locomotion] Robot is free again" << std::endl;
+                }
+            }
+            outputSpeed = Speed(correctedLinearSpeed * c, correctedLinearSpeed * s, computedSpeed.vtheta());
         } break;
 
         default:
