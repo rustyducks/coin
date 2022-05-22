@@ -9,13 +9,14 @@ void ActionJuggler::tick() {
         case GO_TO:
             if (robot_.locomotion.robotBlockedDuration() > action_->blockedDuration()) {
                 std::cout << "Robot is blocked for more than action blocked duration (" << action_->blockedDuration() << ")." << std::endl;
-                nextAction_ = action_->onGoToBlocked();
+                nextAction_ = action_->onGoToBlocked(robot_);
                 if (nextAction_ != nullptr) {
                     actionState_ = GO_TO;
                     action_ = nextAction_;
+                    action_->goTo(robot_.locomotion.robotPose(), robot_);
                     std::cout << "Running goTo of : " << action_->name() << std::endl;
                 }
-            } else if (robot_.locomotion.isGoalReached() || action_->getGoTo(robot_.locomotion.robotPose()) == nullptr) {
+            } else if (robot_.locomotion.isGoalReached() || !action_->goTo(robot_.locomotion.robotPose(), robot_)) {
                 std::cout << "Running FSM : " << action_->name() << std::endl;
                 actionState_ = FSM;
             }
@@ -30,38 +31,26 @@ void ActionJuggler::tick() {
             break;
         case DEINIT:
             if (action_->isDeinit(robot_)) {
-                PathPtr retractTraj = action_->getRetract(robot_.locomotion.robotPose());
-                std::string lastname = action_->name();
-                action_ = nextAction_;
-                if (retractTraj != nullptr) {
+                if (action_->retract(robot_.locomotion.robotPose(), robot_)) {
                     actionState_ = RETRACT;
-                    robot_.locomotion.followTrajectory((Path({robot_.locomotion.robotPose()}) + *retractTraj).computeSpeeds(500., 500., 500., 500.));
-                    std::cout << "Running Retract of : " << lastname << std::endl;
-                    for (size_t i = 0; i < (Path({robot_.locomotion.robotPose()}) + *retractTraj).size(); i++) {
-                        std::cout << (Path({robot_.locomotion.robotPose()}) + *retractTraj).at(i);
-                    }
-                } else if (action_->getGoTo(robot_.locomotion.robotPose()) != nullptr) {
-                    actionState_ = GO_TO;
-                    auto fullPath =
-                        (Path({robot_.locomotion.robotPose()}) + *action_->getGoTo(robot_.locomotion.robotPose())).computeSpeeds(500., 500., 500., 500.);
-                    robot_.locomotion.followTrajectory(fullPath);
-                    std::cout << "Running goTo of : " << action_->name() << std::endl;
-                    std::cout << "FullPath len" << fullPath.size() << std::endl;
-                    for (size_t i = 0; i < fullPath.size(); i++) {
-                        std::cout << fullPath.at(i) << std::endl;
-                    }
+                    // robot_.locomotion.followTrajectory((Path({robot_.locomotion.robotPose()}) + *retractTraj).computeSpeeds(500., 500., 500., 500.));
+                    std::cout << "Running Retract of : " << action_->name() << std::endl;
                 } else {
-                    actionState_ = FSM;
-                    std::cout << "Running FSM of : " << action_->name() << std::endl;
+                    action_ = nextAction_;
+                    if (action_->goTo(robot_.locomotion.robotPose(), robot_)) {
+                        actionState_ = GO_TO;
+                        std::cout << "Running goTo of : " << action_->name() << std::endl;
+                    } else {
+                        actionState_ = FSM;
+                        std::cout << "Running FSM of : " << action_->name() << std::endl;
+                    }
                 }
             }
             break;
         case RETRACT:
             if (robot_.locomotion.isGoalReached()) {
-                if (action_->getGoTo(robot_.locomotion.robotPose()) != nullptr) {
+                if (action_->goTo(robot_.locomotion.robotPose(), robot_)) {
                     actionState_ = GO_TO;
-                    robot_.locomotion.followTrajectory(
-                        (Path({robot_.locomotion.robotPose()}) + *action_->getGoTo(robot_.locomotion.robotPose())).computeSpeeds(500., 500., 500., 500.));
                     std::cout << "Running Goto of : " << action_->name() << std::endl;
                 } else {
                     actionState_ = FSM;
@@ -77,6 +66,7 @@ void ActionJuggler::tick() {
 
 bool ActionJuggler::setFirstAction(ActionPtr firstAction) {
     if (firstAction->checkIntegrity() == Action::eIntegrityCheck::ERROR) {
+        std::cout << "Check integrity failed..." << std::endl;
         return false;
     }
     action_ = firstAction;

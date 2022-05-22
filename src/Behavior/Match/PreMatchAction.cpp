@@ -2,11 +2,7 @@
 
 namespace rd {
 PreMatchAction::PreMatchAction(const PointOriented& yellowStart, const PointOriented& purpleStart)
-    : Action(
-          "Prematch", [](const PointOriented&) { return nullptr; }, [](const PointOriented&) { return nullptr; }),
-      state_(IDLE),
-      yellowStart_(yellowStart),
-      purpleStart_(purpleStart) {}
+    : Action("Prematch", nullptr, nullptr), state_(IDLE), isYellowSelected_(false), yellowStart_(yellowStart), purpleStart_(purpleStart), isInit_(false) {}
 
 void PreMatchAction::deinit(Robot&) {}
 

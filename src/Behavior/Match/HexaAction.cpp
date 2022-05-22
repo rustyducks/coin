@@ -1,8 +1,7 @@
 #include "Coin/Behavior/Match/HexaAction.h"
 
 namespace rd {
-TakeHexaAction::TakeHexaAction(std::function<PathPtr(const PointOriented&)> goTo, std::function<PathPtr(const PointOriented&)> retract, Arm::ArmID armid,
-                               HexaPtr hexa)
+TakeHexaAction::TakeHexaAction(const PointOrientedPtr goTo, const PointOrientedPtr retract, Arm::ArmID armid, HexaPtr hexa)
     : Action("Take_" + hexa->name_, goTo, retract), state_(TakeHexaAction::IDLE), armId_(armid), hexa_(hexa) {}
 
 void TakeHexaAction::deinit(Robot& robot) { robot.stackManager.sendHome(armId_); }

@@ -7,8 +7,7 @@
 namespace rd {
 class TakeHexaAction : public Action {
    public:
-    TakeHexaAction(std::function<PathPtr(const PointOriented&)> goTo, std::function<PathPtr(const PointOriented&)> retract, const Arm::ArmID armId,
-                   HexaPtr hexa);
+    TakeHexaAction(const PointOrientedPtr goTo, const PointOrientedPtr retract, const Arm::ArmID armId, HexaPtr hexa);
     virtual ActionPtr run(Robot& robot) override;
     virtual void deinit(Robot& robot) override;
     virtual bool isDeinit(Robot& robot) override;
