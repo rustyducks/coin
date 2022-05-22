@@ -7,7 +7,7 @@
 namespace rd {
 class Finger : public ActuatorBase<ResistorInput> {
    public:
-    enum eTouching { NOTHING, YELLOW, BLUE, RED, SHORT };
+    enum eTouching { NOTHING, YELLOW, PURPLE, RED, SHORT };
 
     Finger(FingerCommandSenderInterface& fingerSender);
     void updateState(const ResistorInput& resistor);

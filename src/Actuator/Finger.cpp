@@ -15,7 +15,7 @@ void Finger::updateState(const ResistorInput& resistor) {
     } else if (resistor.resistorValue < 575) {
         touching_ = eTouching::YELLOW;
     } else if (resistor.resistorValue < 675) {
-        touching_ = eTouching::BLUE;
+        touching_ = eTouching::PURPLE;
     } else {
         touching_ = eTouching::SHORT;
     }
