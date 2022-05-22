@@ -18,6 +18,8 @@ class StackManager : public ActuatorBase<ProcedureInput> {
     void sendTurnAndPutOnStack(const int armid, const int height);
     void sendTakeFromStack(const int armid, const int height);
 
+    bool initArms();
+
     void pushHexaOnStack(const HexaPtr hexa) { inStack_.push_back(hexa); }
     void popHexaFromStack() {
         if (inStack_.size() == 0) {
@@ -41,6 +43,8 @@ class StackManager : public ActuatorBase<ProcedureInput> {
         TurnAndPutOnStack,
         TakeFromStack,
     };
+    enum eArmInitState { IDLE, ARM1_INITIALIZING, ARM2_INITIALIZING, INITIALIZED };
+    eArmInitState armInitState_;
     Arm& arm1_;
     Arm& arm2_;
     Hat& hat_;
