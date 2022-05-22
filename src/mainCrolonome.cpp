@@ -44,17 +44,8 @@ int main(int, char**) {
         M_PI / 8.  // minRotationalSpeed
     };
 
-    rd::Robot crolonome(motorDucklink, ioDucklink, lidarDucklink, robotParams, table);
-    crolonome.statuetteArm.retractArm();
-    crolonome.statuetteArm.magnet(false);
-    crolonome.locomotion.forceRobotPose({90., 1138.15, 0.0});
-    // Statuette 280, 360
-
-    crolonome.locomotion.goToPointHolonomic({700., 300., -150. * M_PI / 180.});
-    crolonome.finger.retractFinger();
-
-    int state = 0;
-    // rd::ActionJuggler actionJuggler = rd::createStrat1(dalek, table);
+    rd::Robot crolonome(motorDucklink, ioDucklink, lidarDucklink, robotParams, true, table);
+    rd::ActionJuggler behavior = rd::createStratCrolonome1(crolonome, table);
 
     std::default_random_engine generator;
     std::chrono::steady_clock::time_point lastControl = std::chrono::steady_clock::now();

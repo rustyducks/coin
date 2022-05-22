@@ -4,7 +4,8 @@
 
 namespace rd {
 
-Robot::Robot(UDPDucklink& motorDucklink, UDPDucklink& ioDucklink, UDPDucklink& lidarDucklink, PositionControlParameters& positionControlParams)
+Robot::Robot(UDPDucklink& motorDucklink, UDPDucklink& ioDucklink, UDPDucklink& lidarDucklink, PositionControlParameters& positionControlParams, bool holonomic,
+             Table& table)
     : locomotion(positionControlParams, motorDucklink),
       arm1(Arm::ArmID::ARM_1, ioDucklink),
       arm2(Arm::ArmID::ARM_2, ioDucklink),
@@ -14,6 +15,9 @@ Robot::Robot(UDPDucklink& motorDucklink, UDPDucklink& ioDucklink, UDPDucklink& l
       finger(ioDucklink),
       replicaHolder(ioDucklink),
       statuetteArm(ioDucklink),
+      color(UNKNOWN),
+      table(table),
+      holonomic_(holonomic),
       motorDucklink_(motorDucklink),
       ioDucklink_(ioDucklink),
       lidarDucklink_(lidarDucklink) {}

@@ -11,11 +11,15 @@
 #include "Coin/Actuator/StatuetteArm.h"
 #include "Coin/Communication/Ducklink/UDPDucklinkCommunication.h"
 #include "Coin/Locomotion/Locomotion.h"
+#include "Coin/Table/Table.h"
 
 namespace rd {
 class Robot {
    public:
-    Robot(UDPDucklink& motorDucklink, UDPDucklink& ioDucklink, UDPDucklink& lidarDucklink, PositionControlParameters& positionControlParams);
+    Robot(UDPDucklink& motorDucklink, UDPDucklink& ioDucklink, UDPDucklink& lidarDucklink, PositionControlParameters& positionControlParams, bool holonomic,
+          Table& table);
+
+    enum eColor { UNKNOWN, YELLOW, PURPLE };
 
     void sense();
 
@@ -28,8 +32,14 @@ class Robot {
     Finger finger;
     ReplicaHolder replicaHolder;
     StatuetteArm statuetteArm;
+    eColor color;
+
+    Table& table;
+
+    bool holonomic() { return holonomic_; }
 
    protected:
+    bool holonomic_;
     rd::UDPDucklink& motorDucklink_;
     rd::UDPDucklink& ioDucklink_;
     rd::UDPDucklink& lidarDucklink_;

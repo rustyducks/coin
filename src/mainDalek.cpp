@@ -43,7 +43,7 @@ int main(int, char**) {
         M_PI / 8.  // minRotationalSpeed
     };
 
-    rd::Robot dalek(motorDucklink, ioDucklink, lidarDucklink, robotParams);
+    rd::Robot dalek(motorDucklink, ioDucklink, lidarDucklink, robotParams, false, table);
     rd::ActionJuggler actionJuggler = rd::createStrat1(dalek, table);
 
     std::default_random_engine generator;
