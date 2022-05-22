@@ -12,6 +12,9 @@ Table::Table() {
     }
     assert(hexas_.size() == 3 * 2 + 3 * 2 + 1 * 2 + 2 * 2 + 3 * 2 + 3 * 2);
     assert(nameToHexa_.size() == hexas_.size());
+
+    createExcavationSquares();
+    assert(excavationSquares_.size() == 10);
 }
 
 void Table::createDispensers() {
@@ -124,4 +127,28 @@ void Table::fillShedsWithHexas() {
     sheds_.at(eColor::PURPLE).setLeftSlot(hexas_.back());
 }
 
+void Table::createExcavationSquares() {
+    excavationSquares_.reserve(10);
+    excavationSquares_.push_back(std::make_shared<ExcavationSquare>(
+        0, Point(667.5, 0.), std::unordered_set<ExcavationSquare::eColor>({ExcavationSquare::RED, ExcavationSquare::YELLOW})));
+    excavationSquares_.push_back(
+        std::make_shared<ExcavationSquare>(1, Point(852.5, 0.), std::unordered_set<ExcavationSquare::eColor>({ExcavationSquare::YELLOW})));
+    excavationSquares_.push_back(std::make_shared<ExcavationSquare>(
+        2, Point(1037.5, 0.), std::unordered_set<ExcavationSquare::eColor>({ExcavationSquare::RED, ExcavationSquare::YELLOW})));
+
+    excavationSquares_.push_back(std::make_shared<ExcavationSquare>(
+        3, Point(1222.5, 0.), std::unordered_set<ExcavationSquare::eColor>({ExcavationSquare::PURPLE, ExcavationSquare::YELLOW})));
+    excavationSquares_.push_back(std::make_shared<ExcavationSquare>(
+        4, Point(1407.5, 0.), std::unordered_set<ExcavationSquare::eColor>({ExcavationSquare::PURPLE, ExcavationSquare::YELLOW})));
+    excavationSquares_.push_back(std::make_shared<ExcavationSquare>(
+        5, Point(1592.5, 0.), std::unordered_set<ExcavationSquare::eColor>({ExcavationSquare::PURPLE, ExcavationSquare::YELLOW})));
+    excavationSquares_.push_back(std::make_shared<ExcavationSquare>(
+        6, Point(1777.5, 0.), std::unordered_set<ExcavationSquare::eColor>({ExcavationSquare::PURPLE, ExcavationSquare::YELLOW})));
+    excavationSquares_.push_back(std::make_shared<ExcavationSquare>(
+        7, Point(1962.5, 0.), std::unordered_set<ExcavationSquare::eColor>({ExcavationSquare::RED, ExcavationSquare::PURPLE})));
+    excavationSquares_.push_back(
+        std::make_shared<ExcavationSquare>(8, Point(2147.5, 0.), std::unordered_set<ExcavationSquare::eColor>({ExcavationSquare::PURPLE})));
+    excavationSquares_.push_back(std::make_shared<ExcavationSquare>(
+        9, Point(2332.5, 0.), std::unordered_set<ExcavationSquare::eColor>({ExcavationSquare::RED, ExcavationSquare::PURPLE})));
+}
 }  // namespace rd

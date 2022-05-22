@@ -5,6 +5,7 @@
 
 #include "Coin/Table/Colors.h"
 #include "Coin/Table/Dispenser.h"
+#include "Coin/Table/ExcavationSquare.h"
 #include "Coin/Table/Hexa.h"
 #include "Coin/Table/WorkShed.h"
 
@@ -16,12 +17,26 @@ class Table {
     Table();
 
     HexaPtr getHexaByName(const std::string& name) { return nameToHexa_.at(name); }
+    ExcavationSquarePtr getExcavationSquare(const size_t i) { return excavationSquares_.at(i); }
+    const std::vector<ExcavationSquarePtr> getExcavationSquares() { return excavationSquares_; }
+
+    void reasonExcavationSquareColors();
 
    protected:
+    const ExcavationSquare::eColor possibleSquaresLayouts[4][10] = {
+        {ExcavationSquare::YELLOW, ExcavationSquare::YELLOW, ExcavationSquare::RED, ExcavationSquare::PURPLE, ExcavationSquare::YELLOW,
+         ExcavationSquare::YELLOW, ExcavationSquare::PURPLE, ExcavationSquare::RED, ExcavationSquare::PURPLE, ExcavationSquare::PURPLE},
+        {ExcavationSquare::RED, ExcavationSquare::YELLOW, ExcavationSquare::YELLOW, ExcavationSquare::YELLOW, ExcavationSquare::PURPLE,
+         ExcavationSquare::PURPLE, ExcavationSquare::YELLOW, ExcavationSquare::PURPLE, ExcavationSquare::PURPLE, ExcavationSquare::RED},
+        {ExcavationSquare::YELLOW, ExcavationSquare::YELLOW, ExcavationSquare::RED, ExcavationSquare::YELLOW, ExcavationSquare::PURPLE,
+         ExcavationSquare::PURPLE, ExcavationSquare::YELLOW, ExcavationSquare::RED, ExcavationSquare::PURPLE, ExcavationSquare::PURPLE},
+        {ExcavationSquare::RED, ExcavationSquare::YELLOW, ExcavationSquare::YELLOW, ExcavationSquare::PURPLE, ExcavationSquare::YELLOW,
+         ExcavationSquare::YELLOW, ExcavationSquare::PURPLE, ExcavationSquare::PURPLE, ExcavationSquare::PURPLE, ExcavationSquare::RED}};
     std::vector<std::shared_ptr<Hexa>> hexas_;
     std::unordered_map<std::string, HexaPtr> nameToHexa_;
     std::unordered_map<eDispenser, Dispenser> dispensers_;
     // std::unordered_map<eColor, void> galleries_;        // TODO
+    std::vector<ExcavationSquarePtr> excavationSquares_;
     std::unordered_map<eColor, WorkShed> sheds_;
     // std::unordered_map<eColor, void> statuetteStands_;  // TODO
     // std::unordered_map<eColor, void> displayCabinet_;   // TODO
@@ -31,6 +46,11 @@ class Table {
     void createFreeHexas();
     void createSheds();
     void fillShedsWithHexas();
+    void createExcavationSquares();
+
+    bool isOneExcavationSquareUnknown(const std::vector<size_t>& amongst) const;
+    bool isOneExcavationSquareKnown(const std::vector<size_t>& amongst) const;
+    void reasonExcavationSquares(const std::vector<size_t>& amongst);
 };
 }  // namespace rd
 
