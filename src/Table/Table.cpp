@@ -151,4 +151,53 @@ void Table::createExcavationSquares() {
     excavationSquares_.push_back(std::make_shared<ExcavationSquare>(
         9, Point(2332.5, 0.), std::unordered_set<ExcavationSquare::eColor>({ExcavationSquare::RED, ExcavationSquare::PURPLE})));
 }
+
+bool Table::isOneExcavationSquareUnknown(const std::vector<size_t>& amongst) const {
+    for (const auto& id : amongst) {
+        if (!excavationSquares_.at(id)->knownColor()) {
+            return true;
+        }
+    }
+    return false;
+}
+bool Table::isOneExcavationSquareKnown(const std::vector<size_t>& amongst) const {
+    for (const auto& id : amongst) {
+        if (excavationSquares_.at(id)->knownColor()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Table::reasonExcavationSquares(const std::vector<size_t>& amongst) {
+    bool layoutFound = false;
+    if (isOneExcavationSquareUnknown(amongst) && isOneExcavationSquareKnown(amongst)) {
+        for (const size_t& i : amongst) {
+            if (excavationSquares_.at(i)->knownColor()) {
+                for (const auto& possibleLayout : possibleSquaresLayouts) {
+                    if (possibleLayout[i] == *excavationSquares_.at(i)->possibleColors().begin()) {
+                        layoutFound = true;
+                        for (const size_t j : amongst) {
+                            if (i != j) {
+                                excavationSquares_.at(j)->setColor(possibleLayout[j]);
+                            }
+                        }
+                        break;
+                    }
+                }
+                if (layoutFound) {
+                    break;
+                } else {
+                    std::cout << "[Excavation Reasoner] Something went wrong during reasonning..." << std::endl;
+                }
+            }
+        }
+    }
+}
+
+void Table::reasonExcavationSquareColors() {
+    reasonExcavationSquares({0, 2, 7, 9});
+    reasonExcavationSquares({3, 4, 5, 6});
+}
+
 }  // namespace rd
