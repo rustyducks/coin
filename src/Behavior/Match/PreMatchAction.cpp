@@ -4,34 +4,34 @@ namespace rd {
 PreMatchAction::PreMatchAction(const PointOriented& yellowStart, const PointOriented& purpleStart)
     : Action("Prematch", nullptr, nullptr), state_(IDLE), isYellowSelected_(false), yellowStart_(yellowStart), purpleStart_(purpleStart), isInit_(false) {}
 
-void PreMatchAction::deinit(Robot&) {}
+void PreMatchAction::deinit(Robot& robot) {
+    if (isYellowSelected_) {
+        robot.color = Robot::YELLOW;
+    } else {
+        robot.color = Robot::PURPLE;
+    }
+}
 
 bool PreMatchAction::isDeinit(Robot&) { return true; }
 
 ActionPtr PreMatchAction::run(Robot& robot) {
     switch (state_) {
         case IDLE:
-            robot.hmi.setScoreDisplay(0);
-            robot.stackManager.sendHome(0);
-            state_ = INITIALIZING_ARM1;
+            init(robot);
+            state_ = INITIALIZING;
             break;
-        case INITIALIZING_ARM1:
-            if (robot.stackManager.getStatus() == ProcedureInput::SUCCESS) {
-                robot.stackManager.sendHome(1);
-                state_ = INITIALIZING_ARM2;
-            }
-            break;
-        case INITIALIZING_ARM2:
-            if (robot.stackManager.getStatus() == ProcedureInput::SUCCESS) {
+        case INITIALIZING:
+            if (isInit_) {
                 robot.hmi.setLed(HMI::eLedColor::YELLOW);
                 robot.locomotion.forceRobotPose(yellowStart_);
                 isYellowSelected_ = true;
                 state_ = YELLOW_SELECTED;
+            } else {
+                init(robot);  // Update state... Meh..
             }
             break;
         case YELLOW_SELECTED:
             if (robot.hmi.color()) {
-                std::cout << robot.hmi.color() << std::endl;
                 robot.hmi.setLed(HMI::eLedColor::MAGENTA);
                 isYellowSelected_ = false;
                 robot.locomotion.forceRobotPose(purpleStart_);
@@ -77,8 +77,26 @@ ActionPtr PreMatchAction::run(Robot& robot) {
 
 Action::eIntegrityCheck PreMatchAction::checkIntegrity() {
     if (onStartYellow_ == nullptr || onStartPurple_ == nullptr) {
+        logIntegrity(ERROR, "No on start Yellow or on Start Purple defined...");
         return eIntegrityCheck::ERROR;
     }
     return assembleIntegrities(onStartYellow_->checkIntegrity(), onStartPurple_->checkIntegrity());
 }
+void PreMatchAction::init(Robot& robot) {
+    if (!isInit_) {
+        robot.hmi.setScoreDisplay(0);
+        if (!robot.holonomic()) {
+            if (robot.stackManager.initArms()) {
+                isInit_ = true;
+            }
+        } else {
+            robot.replicaHolder.hold();
+            robot.statuetteArm.retractArm();
+            robot.statuetteArm.magnet(false);
+            robot.finger.retractFinger();
+            isInit_ = true;
+        }
+    }
+}
+
 }  // namespace rd

@@ -14,23 +14,23 @@ class PreMatchAction : public Action {
 
     void setOnStartYellow(ActionPtr onStartYellow) { onStartYellow_ = onStartYellow; }
     void setOnStartPurple(ActionPtr onStartPurple) { onStartPurple_ = onStartPurple; }
+    void init(Robot& robot);
 
     eIntegrityCheck checkIntegrity() override;
 
    protected:
-    enum eState { IDLE, INITIALIZING_ARM1, INITIALIZING_ARM2, PURPLE_SELECTED, YELLOW_SELECTED, DONE };
+    enum eState { IDLE, INITIALIZING, PURPLE_SELECTED, YELLOW_SELECTED, DONE };
     eState state_;
     bool isYellowSelected_;
     ActionPtr onStartYellow_;
     ActionPtr onStartPurple_;
     PointOriented yellowStart_;
     PointOriented purpleStart_;
+    bool isInit_;
 };
 class EndMatchAction : public Action {
    public:
-    EndMatchAction()
-        : Action(
-              "End Match", [](const PointOriented&) { return nullptr; }, [](const PointOriented&) { return nullptr; }) {}
+    EndMatchAction() : Action("End Match", nullptr, nullptr) {}
     virtual ActionPtr run(Robot& robot) override {
         robot.locomotion.stop();
         return nullptr;
