@@ -70,7 +70,7 @@ Speed Locomotion::run(const double dt) {
             if (correctedLinearSpeed < computedSpeed.linearSpeed()) {
                 goToPointHolonomic_.slowedDown();
             }
-            if (correctedLinearSpeed <= parameters_.minLinearSpeed && std::abs(computedSpeed.vtheta()) < parameters_.minRotationalSpeed) {
+            if (minX <= tubeInnerLength && std::abs(computedSpeed.vtheta()) < parameters_.minRotationalSpeed) {
                 if (!robotBlocked_) {
                     robotBlocked_ = true;
                     robotBlockedSince_ = std::chrono::steady_clock::now();
