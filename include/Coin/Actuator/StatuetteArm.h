@@ -21,6 +21,9 @@ class StatuetteArm : public ActuatorBase<ProcedureInput> {
 
     void magnet(bool on);
 
+    bool hasStatuette() const { return hasStatuette_; }
+    void setStatuetteCatched() { hasStatuette_ = true; }
+
    protected:
     struct sCommand {
         eArmState armState;
@@ -34,6 +37,7 @@ class StatuetteArm : public ActuatorBase<ProcedureInput> {
     void sendCommand(sCommand command);
 
     ProcedureCommandSenderInterface& procedureSender_;
+    bool hasStatuette_;
 };
 }  // namespace rd
 

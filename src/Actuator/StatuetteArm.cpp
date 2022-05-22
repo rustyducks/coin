@@ -2,7 +2,7 @@
 
 namespace rd {
 StatuetteArm::StatuetteArm(ProcedureCommandSenderInterface& procedureSender)
-    : armState_(RETRACTED), magnetState_(OFF), lastCommand_({RETRACTED, OFF}), procedureSender_(procedureSender) {
+    : armState_(RETRACTED), magnetState_(OFF), lastCommand_({RETRACTED, OFF}), procedureSender_(procedureSender), hasStatuette_(false) {
     retractArm();
     magnet(false);
 }
@@ -28,6 +28,9 @@ void StatuetteArm::deployArm() {
 void StatuetteArm::magnet(bool on) {
     sCommand cmd({lastCommand_.armState, on ? ON : OFF});
     sendCommand(cmd);
+    if (!on) {
+        hasStatuette_ = false;
+    }
 }
 
 void StatuetteArm::sendCommand(sCommand cmd) {
