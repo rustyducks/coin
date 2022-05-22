@@ -4,11 +4,11 @@
 #include "Coin/Table/Table.h"
 
 namespace rd {
-ActionJuggler createStrat1(Robot& robot, Table& table) {
-    auto nullTraj = [](const PointOriented&) { return nullptr; };
+ActionJuggler createStrat1(Robot& robot, Table&) {
+    // auto nullTraj = [](const PointOriented&) { return nullptr; };
 
     ActionJuggler juggler(robot);
-    auto preMatch = std::make_shared<PreMatchAction>(PointOriented({90., 1440., 0.0}), PointOriented({2910., 1440., M_PI}));
+    /*auto preMatch = std::make_shared<PreMatchAction>(PointOriented({90., 1440., 0.0}), PointOriented({2910., 1440., M_PI}));
     auto startToYellowFirstBlue = [](const PointOriented& robotPose) {
         return std::make_shared<Path>(Path::cubicBezier(robotPose, {robotPose.x() + 20., robotPose.y()}, {735., 1700.}, {765, 1600, -1.3}, 100));
     };
@@ -34,7 +34,7 @@ ActionJuggler createStrat1(Robot& robot, Table& table) {
     auto endMatch = std::make_shared<EndMatchAction>();
     yellowFirstGreen->setOnSuccess(endMatch);
     purpleFirstGreen->setOnSuccess(endMatch);
-    juggler.setFirstAction(preMatch);
+    juggler.setFirstAction(preMatch);*/
     return juggler;
 }
 }  // namespace rd
