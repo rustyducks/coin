@@ -11,7 +11,7 @@
 #include "Coin/Actuator/HMI.h"
 #include "Coin/Actuator/Hat.h"
 #include "Coin/Actuator/StackManager.h"
-#include "Coin/Behavior/Match/Strat1.h"
+#include "Coin/Behavior/Match/StratCrolonome1.h"
 #include "Coin/Communication/Ducklink/UDPDucklinkCommunication.h"
 #include "Coin/Communication/UDPJson.h"
 #include "Coin/Locomotion/Locomotion.h"
@@ -44,7 +44,9 @@ int main(int, char**) {
         M_PI / 8.  // minRotationalSpeed
     };
 
-    rd::Robot crolonome(motorDucklink, ioDucklink, lidarDucklink, robotParams);
+    rd::Robot crolonome(motorDucklink, ioDucklink, lidarDucklink, robotParams, table);
+    crolonome.statuetteArm.retractArm();
+    crolonome.statuetteArm.magnet(false);
     crolonome.locomotion.forceRobotPose({90., 1138.15, 0.0});
     // Statuette 280, 360
 
@@ -201,10 +203,36 @@ int main(int, char**) {
                     if (crolonome.finger.isTouching() == rd::Finger::YELLOW) {
                         crolonome.finger.deployFinger();
                     }
-                    crolonome.locomotion.goToPointHolonomic({1037.5, 1000., 0.});
+                    crolonome.locomotion.goToPointHolonomic({320., 420, -70. * M_PI / 180.});
+                    //                    280, 360
+
                     state++;
                 } else if (state == 15) {
-                    ioDucklink.sendFingerCommand(0);
+                    crolonome.statuetteArm.halfDeployArm();
+                    crolonome.statuetteArm.magnet(true);
+                    crolonome.locomotion.goToPointHolonomic({280., 380., -70. * M_PI / 180.});
+                    state++;
+                } else if (state == 16) {
+                    crolonome.locomotion.goToPointHolonomic({336.5, 333.5, -70. * M_PI / 180.});
+                    state++;
+                } else if (state == 17) {
+                    crolonome.replicaHolder.release();
+                    crolonome.locomotion.goToPointHolonomic({376.5, 373.5, -70. * M_PI / 180.});
+                    state++;
+                } else if (state == 18) {
+                    crolonome.replicaHolder.hold();
+                    crolonome.locomotion.goToPointHolonomic({270., 1680., 150. * M_PI / 180.});
+                    state++;
+                } else if (state == 19) {
+                    crolonome.statuetteArm.deployArm();
+                    crolonome.locomotion.goToPointHolonomic({270., 1820., 150. * M_PI / 180.});
+                    state++;
+                } else if (state == 20) {
+                    crolonome.statuetteArm.magnet(false);
+                    crolonome.locomotion.goToPointHolonomic({300, 1500., 0.});
+                    state++;
+                } else if (state == 21) {
+                    crolonome.statuetteArm.retractArm();
                     state++;
                 }
             }
