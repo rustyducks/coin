@@ -11,7 +11,7 @@ Locomotion::Locomotion(PositionControlParameters positionControlParameters, Comm
       parameters_(positionControlParameters),
       positionControlType_(IDLE),
       positionControl_(positionControlParameters, 1.5, 150.),
-      goToPointHolonomic_(positionControlParameters, 1.9),
+      goToPointHolonomic_(positionControlParameters, 1.8),
       targetSpeed_(0., 0., 0.),
       lastCommand_(0., 0., 0.),
       robotBlocked_(false),
@@ -28,6 +28,7 @@ void Locomotion::goToPointHolonomic(const PointOriented& pt) {
 }
 
 Speed Locomotion::run(const double dt) {
+    // predictRobotPose();
     Speed outputSpeed = Speed(0., 0., 0.);
     switch (positionControlType_) {
         case IDLE:
@@ -43,7 +44,7 @@ Speed Locomotion::run(const double dt) {
         } break;
 
         case GO_TO_HOLONOMIC: {
-            Speed computedSpeed = goToPointHolonomic_.computeSpeed(robotPose_, lastCommand_, dt, 1200.);
+            Speed computedSpeed = goToPointHolonomic_.computeSpeed(robotPose_, lastCommand_, dt, 9999999.);
             if (goToPointHolonomic_.isGoalReached()) {
                 outputSpeed = Speed(0., 0., 0.);
                 positionControlType_ = IDLE;
@@ -67,7 +68,7 @@ Speed Locomotion::run(const double dt) {
                 }
             }
             correctedLinearSpeed = correctedLinearSpeed * std::max(0., std::min(1., (minX - tubeInnerLength) / (tubeOuterLength - tubeInnerLength)));
-            if (correctedLinearSpeed < computedSpeed.linearSpeed()) {
+            if (correctedLinearSpeed < computedSpeed.linearSpeed() * 0.95) {
                 goToPointHolonomic_.slowedDown();
             }
             if (minX <= tubeInnerLength * 1.15 && std::abs(computedSpeed.vtheta()) < parameters_.minRotationalSpeed) {

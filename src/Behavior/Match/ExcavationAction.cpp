@@ -12,7 +12,7 @@ ExcavationAction::ExcavationAction(ExcavationSquarePtr square)
 ActionPtr ExcavationAction::run(Robot& robot) {
     switch (state_) {
         case IDLE:
-            robot.locomotion.goToPointHolonomic(PointOriented(square_->location() + Point(0., 70.), -150. * M_PI / 180.));
+            robot.locomotion.goToPointHolonomic(PointOriented(square_->location() + Point(0., 60.), -150. * M_PI / 180.));
             state_ = APPROACHING;
             break;
         case APPROACHING:

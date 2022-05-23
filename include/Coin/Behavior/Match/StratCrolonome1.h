@@ -11,7 +11,7 @@
 namespace rd {
 ActionJuggler createStratCrolonome1(Robot& robot, Table& table) {
     ActionJuggler juggler(robot);
-    auto preMatch = std::make_shared<PreMatchAction>(PointOriented({90., 1138.15, 0.0}), PointOriented({2910., 1138.15, M_PI}));
+    auto preMatch = std::make_shared<PreMatchAction>(PointOriented({90., 1138.15, 0.0}), PointOriented({2890., 1138.15, M_PI}));
 
     auto avoidExcavationSiteYellow1 = std::make_shared<GoToAction>("Avoid Excavation Site Yellow 1", PointOriented(700., 300., -150. * M_PI / 180.));
     auto avoidExcavationSitePurple1 = std::make_shared<GoToAction>("Avoid Excavation Site Purple 1", PointOriented(2300., 300., -150. * M_PI / 180.));
@@ -44,8 +44,8 @@ ActionJuggler createStratCrolonome1(Robot& robot, Table& table) {
                                        PointOriented(346.5, 323.5, -75. * M_PI / 180.), PointOriented(376.5, 373.5, -75. * M_PI / 180.));
 
     auto takeStatuettePurple =
-        std::make_shared<IndianaJones>("Indiana Jones Purple", PointOriented(2680., 420., 75. * M_PI / 180.), PointOriented(2720., 380., 75. * M_PI / 180.),
-                                       PointOriented(2663.5, 333.5, 75. * M_PI / 180.), PointOriented(2623.5, 373.5, 70. * M_PI / 180.));
+        std::make_shared<IndianaJones>("Indiana Jones Purple", PointOriented(2560., 330., 15. * M_PI / 180.), PointOriented(2610., 280., 15. * M_PI / 180.),
+                                       PointOriented(2690., 360., 15. * M_PI / 180.), PointOriented(2590., 450., 15. * M_PI / 180.));
 
     for (auto& yellowExcAct : excavationActionsYellow) {
         yellowExcAct->setOnSuccess(takeStatuetteYellow);
@@ -61,12 +61,12 @@ ActionJuggler createStratCrolonome1(Robot& robot, Table& table) {
     preMatch->setOnStartPurple(takeStatuettePurple);*/
 
     auto exposeStatuetteYellow =
-        std::make_shared<ExposeStatuetteAction>("Expose Statuette Yellow", PointOriented(270., 1680., 150. * M_PI / 180.),
+        std::make_shared<ExposeStatuetteAction>("Expose Statuette Yellow", PointOriented(300., 1680., 150. * M_PI / 180.),
                                                 PointOriented(300., 1870., 150. * M_PI / 180.), PointOriented(300., 1680., 150. * M_PI / 180.));
 
     auto exposeStatuettePurple =
-        std::make_shared<ExposeStatuetteAction>("Expose Statuette Purple", PointOriented(2670., 1680., 150. * M_PI / 180.),
-                                                PointOriented(2730., 1870., 150. * M_PI / 180.), PointOriented(2730., 1680., 150. * M_PI / 180.));
+        std::make_shared<ExposeStatuetteAction>("Expose Statuette Purple", PointOriented(2920., 1680., 150. * M_PI / 180.),
+                                                PointOriented(2910., 1880., 150. * M_PI / 180.), PointOriented(2920., 1680., 150. * M_PI / 180.));
 
     takeStatuetteYellow->setOnSuccess(exposeStatuetteYellow);
     takeStatuettePurple->setOnSuccess(exposeStatuettePurple);

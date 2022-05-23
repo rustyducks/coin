@@ -34,8 +34,8 @@ int main(int, char**) {
     //  rd::UDPDucklinkInput udpClientAnatidaeServer("0.0.0.0", 9999);
 
     rd::PositionControlParameters robotParams = {
-        100.,       // maxLinearAcceleration
-        700.,       // maxLinearSpeed
+        150.,       // maxLinearAcceleration
+        400.,       // maxLinearSpeed
         0.3,        // maxRotationalAcceleration
         1.0,        // maxRotationalSpeed
         5.,         // admittedLinearPositionError
@@ -104,11 +104,11 @@ int main(int, char**) {
 
         double dt = std::chrono::duration_cast<std::chrono::microseconds>(now - lastControl).count() / 1000000.;
         rd::Speed speedCmd;
-        if (dt > 0.1) {
+        if (dt > 0.05) {
             /*if (dt > 5.10) {
                 std::cout << "Position Control loop missed by: " << dt - 5. << "s" << std::endl;
             }*/
-            if (dt >= 0.1 * 1.2) {
+            if (dt >= 0.05 * 1.2) {
                 std::cout << "Warning control loop exceeded by " << dt - 0.1 << "s" << std::endl;
             }
             lastControl = now;
