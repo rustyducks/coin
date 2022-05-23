@@ -12,13 +12,13 @@ IndianaJones::IndianaJones(const std::string& name, const PointOriented entryPoi
 ActionPtr IndianaJones::run(Robot& robot) {
     switch (state_) {
         case IDLE:
-            robot.statuetteArm.halfDeployArm();
             robot.statuetteArm.magnet(true);
             robot.locomotion.goToPointHolonomic(takeStatuettePoint_);
             state_ = APPROACHING_STATUETTE;
             break;
         case APPROACHING_STATUETTE:
             if (robot.locomotion.isGoalReached()) {
+                robot.statuetteArm.deployArm();
                 robot.statuetteArm.setStatuetteCatched();
                 robot.locomotion.goToPointHolonomic(dropReplicaPoint_);
                 state_ = APPROACHING_REPLICA_DROP;
@@ -46,7 +46,7 @@ ActionPtr IndianaJones::run(Robot& robot) {
 }
 void IndianaJones::deinit(Robot& robot) {
     if (robot.statuetteArm.hasStatuette()) {
-        robot.statuetteArm.halfDeployArm();
+        robot.statuetteArm.deployArm();
         robot.statuetteArm.magnet(true);
     } else {
         robot.statuetteArm.retractArm();
