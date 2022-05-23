@@ -1,7 +1,9 @@
 #include "Coin/Actuator/HMI.h"
 
 namespace rd {
-HMI::HMI(HMICommandSenderInterface& sender) : lastCommand_({0, 0}), sender_(sender) { sender_.sendHMICommand(lastCommand_.scoreDisplay, lastCommand_.led); }
+HMI::HMI(HMICommandSenderInterface& sender) : lastCommand_({0, 0}), button_(false), color_(false), tirette_(true), sender_(sender) {
+    sender_.sendHMICommand(lastCommand_.scoreDisplay, lastCommand_.led);
+}
 
 void HMI::updateState(const HMIInput& input) {
     button_ = input.button_;
