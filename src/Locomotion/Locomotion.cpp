@@ -11,7 +11,7 @@ Locomotion::Locomotion(PositionControlParameters positionControlParameters, Comm
       parameters_(positionControlParameters),
       positionControlType_(IDLE),
       positionControl_(positionControlParameters, 1.5, 150.),
-      goToPointHolonomic_(positionControlParameters, 1.7),
+      goToPointHolonomic_(positionControlParameters, 1.9),
       targetSpeed_(0., 0., 0.),
       lastCommand_(0., 0., 0.),
       robotBlocked_(false),
@@ -70,7 +70,7 @@ Speed Locomotion::run(const double dt) {
             if (correctedLinearSpeed < computedSpeed.linearSpeed()) {
                 goToPointHolonomic_.slowedDown();
             }
-            if (minX <= tubeInnerLength && std::abs(computedSpeed.vtheta()) < parameters_.minRotationalSpeed) {
+            if (minX <= tubeInnerLength * 1.15 && std::abs(computedSpeed.vtheta()) < parameters_.minRotationalSpeed) {
                 if (!robotBlocked_) {
                     robotBlocked_ = true;
                     robotBlockedSince_ = std::chrono::steady_clock::now();
@@ -78,12 +78,12 @@ Speed Locomotion::run(const double dt) {
                 }
                 outputSpeed = Speed(0., 0., 0.);
             } else {
-                if (robotBlocked_) {
+                if (robotBlocked_ && minX >= tubeInnerLength * 1.20) {
                     robotBlocked_ = false;
                     std::cout << "[Locomotion] Robot is free again" << std::endl;
                 }
+                outputSpeed = Speed(correctedLinearSpeed * c, correctedLinearSpeed * s, computedSpeed.vtheta());
             }
-            outputSpeed = Speed(correctedLinearSpeed * c, correctedLinearSpeed * s, computedSpeed.vtheta());
         } break;
 
         default:
