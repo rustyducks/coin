@@ -1,8 +1,8 @@
 #include "Coin/Behavior/Match/ExcavationAction.h"
 namespace rd {
 ExcavationAction::ExcavationAction(ExcavationSquarePtr square)
-    : Action("Excavation of " + std::to_string(square->id()), std::make_shared<PointOriented>(square->location() + Point({0., 200.}), -150. * M_PI / 180.),
-             std::make_shared<PointOriented>(square->location() + Point({0., 200.}), -150. * M_PI / 180.)),
+    : Action("Excavation of " + std::to_string(square->id()), std::make_shared<PointOriented>(square->location() + Point({0., 150.}), -150. * M_PI / 180.),
+             std::make_shared<PointOriented>(square->location() + Point({0., 150.}), -150. * M_PI / 180.)),
       state_(IDLE),
       square_(square) {
     blockedDuration_ = 5.;
@@ -10,7 +10,7 @@ ExcavationAction::ExcavationAction(ExcavationSquarePtr square)
 ActionPtr ExcavationAction::run(Robot& robot) {
     switch (state_) {
         case IDLE:
-            robot.locomotion.goToPointHolonomic(PointOriented(square_->location() + Point(0., 60.), -150. * M_PI / 180.));
+            robot.locomotion.goToPointHolonomic(PointOriented(square_->location() + Point(0., 70.), -150. * M_PI / 180.));
             state_ = APPROACHING;
             break;
         case APPROACHING:
@@ -32,6 +32,7 @@ ActionPtr ExcavationAction::run(Robot& robot) {
                     ExcavationSquare::eColor interstingColor = robot.color == Robot::YELLOW ? ExcavationSquare::YELLOW : ExcavationSquare::PURPLE;
                     if (square_->possibleColors().count(interstingColor) > 0) {
                         robot.finger.deployFinger();
+                        square_->flip();
                     }
                     state_ = RETURNING;
                 }
@@ -74,6 +75,7 @@ ActionPtr ExcavationAction::getNextSquare(Robot::eColor color) const {
     ExcavationSquare::eColor interstingColor = color == Robot::YELLOW ? ExcavationSquare::YELLOW : ExcavationSquare::PURPLE;
     for (const auto& squareAct : nextSquares_) {
         if (squareAct->square()->possibleColors().count(interstingColor) > 0 && !squareAct->square()->isFlipped()) {
+            std::cout << "Going to " << squareAct->name() << std::endl;
             return squareAct;
         }
     }
