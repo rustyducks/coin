@@ -26,7 +26,7 @@ Robot::Robot(UDPDucklink& motorDucklink, UDPDucklink& ioDucklink, UDPDucklink& l
 void Robot::sense() {
     for (const auto& input : motorDucklink_.getInputs()) {
         if (input->type() == rd::eInput::POSITION_REPORT) {
-            auto& msg = static_cast<rd::PointOrientedInput&>(*input);
+            auto& msg = static_cast<rd::PointOrientedInputWithTimestamp&>(*input);
             locomotion.updateRobotPose(msg);
             lidarDucklink_.sendPoseReport(locomotion.robotPose());
         } else if (input->type() == rd::eInput::SPEED_REPORT) {

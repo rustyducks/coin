@@ -2,6 +2,7 @@
 
 #include <unistd.h>
 
+#include <chrono>
 #include <cstring>
 
 namespace rd {
@@ -15,8 +16,9 @@ std::vector<std::unique_ptr<Input>> UDPDucklink::getInputs() {
         for (const auto& msg : msgs) {
             if (msg.msg_type() == protoduck::Message_MsgType::Message_MsgType_STATUS) {
                 if (msg.has_pos()) {
+                    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();  // Not really really 'now' but...
                     PointOriented p(msg.pos().x(), msg.pos().y(), msg.pos().theta());
-                    toReturn.push_back(std::make_unique<PointOrientedInput>(eInput::POSITION_REPORT, p));
+                    toReturn.push_back(std::make_unique<PointOrientedInputWithTimestamp>(eInput::POSITION_REPORT, p, now));
                 } else if (msg.has_speed()) {
                     Speed s(msg.speed().vx(), msg.speed().vy(), msg.speed().vtheta());
                     toReturn.push_back(std::make_unique<SpeedInput>(eInput::SPEED_REPORT, s));

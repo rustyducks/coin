@@ -20,10 +20,22 @@ class Locomotion {
 
     void goToPointHolonomic(const PointOriented& pt);
 
-    void updateRobotPose(PointOrientedInput pose) { robotPose_ = pose.getPoint(); }
+    void updateRobotPose(PointOrientedInputWithTimestamp poseStamped) {
+        robotPose_ = poseStamped.getPoint();
+        lastUpdatedPoseTime_ = poseStamped.timestamp();
+    }
+
+    void predictRobotPose() {
+        auto now = std::chrono::system_clock::now();
+        double dt = std::chrono::duration_cast<std::chrono::microseconds>(now - lastUpdatedPoseTime_).count() / 1000000.;
+        Speed delta = lastCommand_ * dt;  // Assumes speed has not changed since dt
+        robotPose_ = robotPose_ + PointOriented(delta.vx(), delta.vy(), delta.vtheta());
+    }
+
     void updateRobotSpeed(SpeedInput speed) { robotSpeed_ = speed.getSpeed(); }
     void updateAdversaries(LidarAdversaries adv) { adversaries_ = adv.adversaries_; }
     void forceRobotPose(const PointOriented& pose) {
+        lastUpdatedPoseTime_ = std::chrono::system_clock::now();
         robotPose_ = pose;
         communicationBase_.sendPoseCommand(pose);
     }
@@ -41,6 +53,7 @@ class Locomotion {
 
    protected:
     PointOriented robotPose_;
+    std::chrono::system_clock::time_point lastUpdatedPoseTime_;
     Speed robotSpeed_;
 
     CommunicationOutputBase& communicationBase_;

@@ -1,6 +1,7 @@
 #ifndef COMMUNICATIONBASE_H
 #define COMMUNICATIONBASE_H
 
+#include <chrono>
 #include <memory>
 #include <vector>
 
@@ -49,6 +50,18 @@ class PointOrientedInput : public Input {
 
    protected:
     PointOriented point_;
+};
+
+class PointOrientedInputWithTimestamp : public Input {
+   public:
+    PointOrientedInputWithTimestamp(eInput type, const PointOriented& point, const std::chrono::system_clock::time_point& timestamp)
+        : Input(type), point_(point), timestamp_(timestamp) {}
+    const PointOriented& getPoint() const { return point_; }
+    const std::chrono::system_clock::time_point& timestamp() const { return timestamp_; }
+
+   protected:
+    PointOriented point_;
+    std::chrono::system_clock::time_point timestamp_;
 };
 
 class SpeedInput : public Input {
