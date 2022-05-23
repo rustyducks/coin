@@ -1,10 +1,40 @@
 #include "Coin/Behavior/Match/ActionJuggler.h"
 
 namespace rd {
-ActionJuggler::ActionJuggler(Robot& robot) : BehaviorBase(robot), actionState_(eActionState::GO_TO) {}
+ActionJuggler::ActionJuggler(Robot& robot) : BehaviorBase(robot), actionState_(eActionState::GO_TO), almostEndStarted_(false) {}
 
 void ActionJuggler::tick() {
-    // TODO: add guards for going to start zone at the end of match and overtime stop
+    if (robot_.matchStarted() && clock::now() >= robot_.endMatchTime()) {
+        overtime_->run(robot_);
+        return;
+    }
+    if (robot_.matchStarted()) {
+        if (!almostEndStarted_) {
+            clock::time_point toAlmostEndPoint;
+            if (robot_.color == robot_.YELLOW) {
+                toAlmostEndPoint = clock::now() + std::chrono::seconds((int)std::ceil(robot_.locomotion.robotPose().distanceTo(almostEndMatchYellow_) / 500.));
+            } else {
+                toAlmostEndPoint = clock::now() + std::chrono::seconds((int)std::ceil(robot_.locomotion.robotPose().distanceTo(almostEndMatchPurple_) / 500.));
+            }
+            if (toAlmostEndPoint >= robot_.almostEndMatchTime()) {
+                action_->deinit(robot_);
+                if (robot_.color == robot_.YELLOW) {
+                    robot_.locomotion.goToPointHolonomic(almostEndMatchYellow_);
+                } else {
+                    robot_.locomotion.goToPointHolonomic(almostEndMatchPurple_);
+                }
+                std::cout << "[ActionJuggler] If we don't want to be like the white rabbit, we should got now! (almost end match)" << std::endl;
+                almostEndStarted_ = true;
+                return;
+            }
+        } else {
+            if (robot_.locomotion.isGoalReached()) {
+                overtime_->run(robot_);
+            }
+            return;
+        }
+    }
+
     switch (actionState_) {
         case GO_TO:
             if (robot_.locomotion.robotBlockedDuration() > action_->blockedDuration()) {
@@ -35,6 +65,7 @@ void ActionJuggler::tick() {
                     actionState_ = RETRACT;
                     // robot_.locomotion.followTrajectory((Path({robot_.locomotion.robotPose()}) + *retractTraj).computeSpeeds(500., 500., 500., 500.));
                     std::cout << "Running Retract of : " << action_->name() << std::endl;
+                    action_ = nextAction_;
                 } else {
                     action_ = nextAction_;
                     if (action_->goTo(robot_.locomotion.robotPose(), robot_)) {
@@ -68,6 +99,9 @@ bool ActionJuggler::setFirstAction(ActionPtr firstAction) {
     if (firstAction->checkIntegrity() == Action::eIntegrityCheck::ERROR) {
         std::cout << "Check integrity failed..." << std::endl;
         return false;
+    }
+    if (almostEndMatchYellow_ == PointOriented() || almostEndMatchPurple_ == PointOriented()) {
+        std::cout << "No almost end point set in action juggler... integrity checks failed" << std::endl;
     }
     action_ = firstAction;
     return true;

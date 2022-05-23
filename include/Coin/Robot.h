@@ -16,6 +16,10 @@
 namespace rd {
 class Robot {
    public:
+    using clock = std::chrono::system_clock;
+
+    const int MATCH_DURATION = 100;      // sec
+    const int ALMOST_END_DURATION = 95;  // sec
     Robot(UDPDucklink& motorDucklink, UDPDucklink& ioDucklink, UDPDucklink& lidarDucklink, PositionControlParameters& positionControlParams, bool holonomic,
           Table& table);
 
@@ -37,12 +41,21 @@ class Robot {
     Table& table;
 
     bool holonomic() { return holonomic_; }
+    bool matchStarted() { return matchStarted_; }
+    const clock::time_point almostEndMatchTime() { return almostEndMatchTime_; }
+    const clock::time_point endMatchTime() { return endMatchTime_; }
+
+    void startMatch();
 
    protected:
     bool holonomic_;
     rd::UDPDucklink& motorDucklink_;
     rd::UDPDucklink& ioDucklink_;
     rd::UDPDucklink& lidarDucklink_;
+
+    bool matchStarted_;
+    clock::time_point almostEndMatchTime_;
+    clock::time_point endMatchTime_;
 };
 }  // namespace rd
 

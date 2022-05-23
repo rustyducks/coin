@@ -20,7 +20,8 @@ Robot::Robot(UDPDucklink& motorDucklink, UDPDucklink& ioDucklink, UDPDucklink& l
       holonomic_(holonomic),
       motorDucklink_(motorDucklink),
       ioDucklink_(ioDucklink),
-      lidarDucklink_(lidarDucklink) {}
+      lidarDucklink_(lidarDucklink),
+      matchStarted_(false) {}
 
 void Robot::sense() {
     for (const auto& input : motorDucklink_.getInputs()) {
@@ -60,6 +61,14 @@ void Robot::sense() {
             auto& msg = static_cast<rd::LidarAdversaries&>(*input);
             locomotion.updateAdversaries(msg);
         }
+    }
+}
+
+void Robot::startMatch() {
+    if (!matchStarted_) {
+        matchStarted_ = true;
+        almostEndMatchTime_ = clock::now() + std::chrono::seconds(ALMOST_END_DURATION);
+        endMatchTime_ = clock::now() + std::chrono::seconds(MATCH_DURATION);
     }
 }
 
