@@ -16,6 +16,8 @@ ActionPtr ExposeStatuetteAction::run(Robot& robot) {
             if (robot.locomotion.isGoalReached()) {
                 robot.statuetteArm.magnet(false);
                 robot.locomotion.goToPointHolonomic(exitPoint_);
+                robot.table.isStatuetteInCabinet = true;
+                robot.table.isCabinetActivated = true;
                 state_ = RETREATING;
             }
             break;

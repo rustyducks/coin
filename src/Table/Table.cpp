@@ -1,7 +1,7 @@
 #include "Coin/Table/Table.h"
 
 namespace rd {
-Table::Table() {
+Table::Table() : isStatuetteOnPedestal(true), isReplicaOnPedestal(false), isStatuetteInCabinet(false), isCabinetActivated(false) {
     createDispensers();
     fillDispensersWithHexas();
     createSheds();
@@ -198,6 +198,55 @@ void Table::reasonExcavationSquares(const std::vector<size_t>& amongst) {
 void Table::reasonExcavationSquareColors() {
     reasonExcavationSquares({0, 2, 7, 9});
     reasonExcavationSquares({3, 4, 5, 6});
+}
+
+int Table::countPoints(bool isCrolonome, eColor color, PointOriented robotPose) const {
+    if (isCrolonome) {
+        // Squares
+        ExcavationSquare::eColor insterstingColor = color == YELLOW ? ExcavationSquare::YELLOW : ExcavationSquare::PURPLE;
+        int squarePoints = 0;
+        bool atLeastOneFlipped = false;
+        for (const auto& square : excavationSquares_) {
+            if (square->isFlipped() && square->knownColor() && square->possibleColors().count(insterstingColor) > 0) {
+                squarePoints += 5;
+                atLeastOneFlipped = true;
+            }
+        }
+        if (atLeastOneFlipped) {
+            squarePoints += 5;
+        }
+
+        // Statuette
+        int statuettePoints = 0;
+        if (!isStatuetteOnPedestal) {
+            statuettePoints += 5;
+        }
+        if (isReplicaOnPedestal) {
+            statuettePoints += 10;
+        }
+        if (isStatuetteInCabinet) {
+            statuettePoints += 15;
+        }
+        if (isCabinetActivated) {
+            statuettePoints += 5;
+        }
+
+        // Come back
+        int comebackPoints = 0;
+        if (color == YELLOW) {
+            if (robotPose.x() < 500 && robotPose.x() > -100 && robotPose.y() < 1700 && robotPose.y() > 900) {
+                comebackPoints = 20;  // Count for all the robots
+            }
+        } else {
+            if (robotPose.x() < 3100. && robotPose.x() > 2500. && robotPose.y() < 1700 && robotPose.y() > 900) {
+                comebackPoints = 20;  // Count for all the robots
+            }
+        }
+
+        return BASE_SCORE_CROLONOME + squarePoints + statuettePoints + comebackPoints;
+    } else {
+        return 0.;
+    }
 }
 
 }  // namespace rd

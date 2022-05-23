@@ -12,6 +12,7 @@
 namespace rd {
 class Table {
    public:
+    const int BASE_SCORE_CROLONOME = 2 + 2;  // Statuette on pedestal, display cabinet installed
     enum eDispenser { HORIZONTAL_YELLOW, HORIZONTAL_PURPLE, VERTICAL_YELLOW, VERTICAL_PURPLE, VERTICAL_GALLERY_YELLOWISH, VERTICAL_GALLERY_PURPLISH };
 
     Table();
@@ -21,6 +22,13 @@ class Table {
     const std::vector<ExcavationSquarePtr> getExcavationSquares() { return excavationSquares_; }
 
     void reasonExcavationSquareColors();
+
+    bool isStatuetteOnPedestal;
+    bool isReplicaOnPedestal;
+    bool isStatuetteInCabinet;
+    bool isCabinetActivated;
+
+    int countPoints(bool isCrolonome, eColor robotColor, PointOriented robotPose) const;
 
    protected:
     const ExcavationSquare::eColor possibleSquaresLayouts[4][10] = {

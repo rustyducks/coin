@@ -21,12 +21,14 @@ ActionPtr IndianaJones::run(Robot& robot) {
                 robot.statuetteArm.deployArm();
                 robot.statuetteArm.setStatuetteCatched();
                 robot.locomotion.goToPointHolonomic(dropReplicaPoint_);
+                robot.table.isStatuetteOnPedestal = false;
                 state_ = APPROACHING_REPLICA_DROP;
             }
             break;
         case APPROACHING_REPLICA_DROP:
             if (robot.locomotion.isGoalReached()) {
                 robot.replicaHolder.release();
+                robot.table.isReplicaOnPedestal = true;
                 state_ = DROPPING;
             }
             break;

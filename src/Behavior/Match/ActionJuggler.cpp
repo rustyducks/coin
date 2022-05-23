@@ -1,9 +1,14 @@
 #include "Coin/Behavior/Match/ActionJuggler.h"
 
+#include "Coin/Table/Colors.h"
+
 namespace rd {
 ActionJuggler::ActionJuggler(Robot& robot) : BehaviorBase(robot), actionState_(eActionState::GO_TO), almostEndStarted_(false) {}
 
 void ActionJuggler::tick() {
+    eColor color = robot_.color == robot_.YELLOW ? eColor::YELLOW : eColor::PURPLE;
+    int score = robot_.table.countPoints(robot_.holonomic(), color, robot_.locomotion.robotPose());
+    robot_.hmi.setScoreDisplay(score);
     if (robot_.matchStarted() && clock::now() >= robot_.endMatchTime()) {
         overtime_->run(robot_);
         return;
