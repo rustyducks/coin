@@ -39,6 +39,7 @@ ActionPtr PreMatchAction::run(Robot& robot) {
             }
             if (!robot.hmi.tirette()) {
                 state_ = DONE;
+                robot.startMatch();
                 if (isYellowSelected_) {
                     return onStartYellow_;
                 } else {
@@ -55,6 +56,7 @@ ActionPtr PreMatchAction::run(Robot& robot) {
             }
             if (!robot.hmi.tirette()) {
                 state_ = DONE;
+                robot.startMatch();
                 if (isYellowSelected_) {
                     return onStartYellow_;
                 } else {
