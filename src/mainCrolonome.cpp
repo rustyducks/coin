@@ -34,14 +34,14 @@ int main(int, char**) {
     //  rd::UDPDucklinkInput udpClientAnatidaeServer("0.0.0.0", 9999);
 
     rd::PositionControlParameters robotParams = {
-        200.,      // maxLinearAcceleration
-        1000.,     // maxLinearSpeed
-        0.5,       // maxRotationalAcceleration
-        1.5,       // maxRotationalSpeed
-        5.,        // admittedLinearPositionError
-        0.045,     // admittedAnglePositionError
-        40.,       // minLinearSpeed
-        M_PI / 8.  // minRotationalSpeed
+        100.,       // maxLinearAcceleration
+        700.,       // maxLinearSpeed
+        0.3,        // maxRotationalAcceleration
+        1.0,        // maxRotationalSpeed
+        5.,         // admittedLinearPositionError
+        0.045,      // admittedAnglePositionError
+        20.,        // minLinearSpeed
+        M_PI / 10.  // minRotationalSpeed
     };
 
     rd::Robot crolonome(motorDucklink, ioDucklink, lidarDucklink, robotParams, true, table);
