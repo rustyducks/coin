@@ -16,7 +16,7 @@ void ActionJuggler::tick() {
                     action_->goTo(robot_.locomotion.robotPose(), robot_);
                     std::cout << "Running goTo of : " << action_->name() << std::endl;
                 }
-            } else if (robot_.locomotion.isGoalReached() || !action_->goTo(robot_.locomotion.robotPose(), robot_)) {
+            } else if (robot_.locomotion.isGoalReached()) {
                 std::cout << "Running FSM : " << action_->name() << std::endl;
                 actionState_ = FSM;
             }
