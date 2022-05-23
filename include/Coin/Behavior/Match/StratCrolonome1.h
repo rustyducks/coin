@@ -3,6 +3,7 @@
 #include "Coin/Behavior/Match/ActionJuggler.h"
 #include "Coin/Behavior/Match/ExcavationAction.h"
 #include "Coin/Behavior/Match/ExposeStatuetteAction.h"
+#include "Coin/Behavior/Match/GoToAction.h"
 #include "Coin/Behavior/Match/IndianaJones.h"
 #include "Coin/Behavior/Match/PreMatchAction.h"
 #include "Coin/Table/Table.h"
@@ -11,6 +12,12 @@ namespace rd {
 ActionJuggler createStratCrolonome1(Robot& robot, Table& table) {
     ActionJuggler juggler(robot);
     auto preMatch = std::make_shared<PreMatchAction>(PointOriented({90., 1138.15, 0.0}), PointOriented({2910., 1138.15, M_PI}));
+
+    auto avoidExcavationSiteYellow1 = std::make_shared<GoToAction>("Avoid Excavation Site Yellow 1", PointOriented(700., 300., -150. * M_PI / 180.));
+    auto avoidExcavationSitePurple1 = std::make_shared<GoToAction>("Avoid Excavation Site Purple 1", PointOriented(2300., 300., -150. * M_PI / 180.));
+
+    preMatch->setOnStartYellow(avoidExcavationSiteYellow1);
+    preMatch->setOnStartPurple(avoidExcavationSitePurple1);
 
     std::vector<ExcavationActionPtr> excavationActionsYellow;
     std::vector<ExcavationActionPtr> excavationActionsPurple;
@@ -29,16 +36,16 @@ ActionJuggler createStratCrolonome1(Robot& robot, Table& table) {
         excavationActionsPurple.at(i)->setNextSquares(std::vector<ExcavationActionPtr>(excavationActionsPurple.begin() + i + 1, excavationActionsPurple.end()));
     }
 
-    preMatch->setOnStartYellow(excavationActionsYellow.at(0));
-    preMatch->setOnStartPurple(excavationActionsPurple.at(0));
+    avoidExcavationSiteYellow1->setOnSuccess(excavationActionsYellow.at(0));
+    avoidExcavationSitePurple1->setOnSuccess(excavationActionsPurple.at(0));
 
     auto takeStatuetteYellow =
-        std::make_shared<IndianaJones>("Indiana Jones Yellow", PointOriented(320., 420., -70. * M_PI / 180.), PointOriented(280., 380., -70. * M_PI / 180.),
-                                       PointOriented(336.5, 333.5, -70. * M_PI / 180.), PointOriented(376.5, 373.5, -70. * M_PI / 180.));
+        std::make_shared<IndianaJones>("Indiana Jones Yellow", PointOriented(340., 400., -75. * M_PI / 180.), PointOriented(302., 357., -75. * M_PI / 180.),
+                                       PointOriented(346.5, 323.5, -75. * M_PI / 180.), PointOriented(376.5, 373.5, -75. * M_PI / 180.));
 
     auto takeStatuettePurple =
-        std::make_shared<IndianaJones>("Indiana Jones Purple", PointOriented(2680., 420., 70. * M_PI / 180.), PointOriented(2720., 380., 70. * M_PI / 180.),
-                                       PointOriented(2663.5, 333.5, 70. * M_PI / 180.), PointOriented(2623.5, 373.5, 70. * M_PI / 180.));
+        std::make_shared<IndianaJones>("Indiana Jones Purple", PointOriented(2680., 420., 75. * M_PI / 180.), PointOriented(2720., 380., 75. * M_PI / 180.),
+                                       PointOriented(2663.5, 333.5, 75. * M_PI / 180.), PointOriented(2623.5, 373.5, 70. * M_PI / 180.));
 
     for (auto& yellowExcAct : excavationActionsYellow) {
         yellowExcAct->setOnSuccess(takeStatuetteYellow);
@@ -47,20 +54,35 @@ ActionJuggler createStratCrolonome1(Robot& robot, Table& table) {
         purpleExcAct->setOnSuccess(takeStatuettePurple);
     }
 
+    // To remove
+    /*auto avoidDebug1 = std::make_shared<GoToAction>("Avoid Excavation Site Yellow 1", PointOriented(500., 600., -75. * M_PI / 180.));
+    preMatch->setOnStartYellow(avoidDebug1);
+    avoidDebug1->setOnSuccess(takeStatuetteYellow);
+    preMatch->setOnStartPurple(takeStatuettePurple);*/
+
     auto exposeStatuetteYellow =
         std::make_shared<ExposeStatuetteAction>("Expose Statuette Yellow", PointOriented(270., 1680., 150. * M_PI / 180.),
-                                                PointOriented(270., 1820., 150. * M_PI / 180.), PointOriented(270., 1680., 150. * M_PI / 180.));
+                                                PointOriented(300., 1870., 150. * M_PI / 180.), PointOriented(300., 1680., 150. * M_PI / 180.));
 
     auto exposeStatuettePurple =
-        std::make_shared<ExposeStatuetteAction>("Expose Statuette Purple", PointOriented(2730., 1680., 150. * M_PI / 180.),
-                                                PointOriented(2730., 1820., 150. * M_PI / 180.), PointOriented(2730., 1680., 150. * M_PI / 180.));
+        std::make_shared<ExposeStatuetteAction>("Expose Statuette Purple", PointOriented(2670., 1680., 150. * M_PI / 180.),
+                                                PointOriented(2730., 1870., 150. * M_PI / 180.), PointOriented(2730., 1680., 150. * M_PI / 180.));
 
     takeStatuetteYellow->setOnSuccess(exposeStatuetteYellow);
     takeStatuettePurple->setOnSuccess(exposeStatuettePurple);
 
+    auto goToBercailYellow = std::make_shared<GoToAction>("Go To Bercail Yellow", PointOriented(200., 1000., 0.));
+    auto goToBercailPurple = std::make_shared<GoToAction>("Go To Bercail Purple", PointOriented(2800., 1000., M_PI));
+    exposeStatuetteYellow->setOnSuccess(goToBercailYellow);
+    exposeStatuettePurple->setOnSuccess(goToBercailPurple);
+
     auto endMatch = std::make_shared<EndMatchAction>();
-    exposeStatuetteYellow->setOnSuccess(endMatch);
-    exposeStatuettePurple->setOnSuccess(endMatch);
+
+    goToBercailYellow->setOnSuccess(endMatch);
+    goToBercailPurple->setOnSuccess(endMatch);
+
+    juggler.setAlmostEndMatchPoints({200., 1000., 0.}, {2800., 1000., M_PI});
+    juggler.setOvertimeAction(endMatch);
     juggler.setFirstAction(preMatch);
     return juggler;
 }
