@@ -2,6 +2,7 @@
 #define EXCAVATIONACTION_H
 
 #include "Coin/Behavior/Match/Action.h"
+#include "Coin/Behavior/Timer.h"
 #include "Coin/Table/ExcavationSquare.h"
 
 namespace rd {
@@ -32,6 +33,8 @@ class ExcavationAction : public Action {
     ExcavationSquarePtr square_;
     std::vector<ExcavationActionPtr> nextSquares_;
     ActionPtr onSuccess_;  // What to do when no more squares are to flip
+    Timer colorDetectionTimeout_;
+    Timer fingerDeployWait_;
 };
 }  // namespace rd
 

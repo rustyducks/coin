@@ -4,7 +4,9 @@ ExcavationAction::ExcavationAction(ExcavationSquarePtr square)
     : Action("Excavation of " + std::to_string(square->id()), std::make_shared<PointOriented>(square->location() + Point({0., 150.}), -150. * M_PI / 180.),
              std::make_shared<PointOriented>(square->location() + Point({0., 150.}), -150. * M_PI / 180.)),
       state_(IDLE),
-      square_(square) {
+      square_(square),
+      colorDetectionTimeout_(3.),
+      fingerDeployWait_(0.5) {
     blockedDuration_ = 5.;
 }
 ActionPtr ExcavationAction::run(Robot& robot) {
@@ -15,6 +17,9 @@ ActionPtr ExcavationAction::run(Robot& robot) {
             break;
         case APPROACHING:
             if (robot.locomotion.isGoalReached()) {
+                if (!colorDetectionTimeout_.isStarted()) {
+                    colorDetectionTimeout_.start();
+                }
                 robot.locomotion.forceRobotPose({robot.locomotion.robotPose().x(), 90., -150. * M_PI / 180.});
                 if (!square_->knownColor()) {
                     if (robot.finger.isTouching() == robot.finger.PURPLE) {
@@ -32,22 +37,27 @@ ActionPtr ExcavationAction::run(Robot& robot) {
                     ExcavationSquare::eColor interstingColor = robot.color == Robot::YELLOW ? ExcavationSquare::YELLOW : ExcavationSquare::PURPLE;
                     if (square_->possibleColors().count(interstingColor) > 0) {
                         robot.finger.deployFinger();
+                        fingerDeployWait_.start();
                         square_->flip();
                     }
                     state_ = RETURNING;
+                } else if (colorDetectionTimeout_.check()) {
+                    // Timeout...
+                    std::cout << "[Excavation Action] Cannot determine the color of square: " << square_->id() << "." << std::endl;
+                    state_ = RETURNING;
                 }
-                // Add a timeout if the square color is still unknown...
             }
             break;
         case RETURNING: {
-            // Maybe add a wait for finger to deploy
-            const auto& nextSquareAct = getNextSquare(robot.color);
-            if (nextSquareAct != nullptr) {
-                return nextSquareAct;
-            } else {
-                return onSuccess_;
+            if (!fingerDeployWait_.isStarted() || (fingerDeployWait_.isStarted() && fingerDeployWait_.check())) {
+                const auto& nextSquareAct = getNextSquare(robot.color);
+                if (nextSquareAct != nullptr) {
+                    return nextSquareAct;
+                } else {
+                    return onSuccess_;
+                }
+                state_ = DONE;
             }
-            state_ = DONE;
         } break;
         case DONE: {
             const auto& nextSquareAct = getNextSquare(robot.color);
