@@ -6,6 +6,7 @@
 #include "Coin/Table/Colors.h"
 #include "Coin/Table/Dispenser.h"
 #include "Coin/Table/ExcavationSquare.h"
+#include "Coin/Table/Gallery.h"
 #include "Coin/Table/Hexa.h"
 #include "Coin/Table/WorkShed.h"
 
@@ -20,6 +21,8 @@ class Table {
     HexaPtr getHexaByName(const std::string& name) { return nameToHexa_.at(name); }
     ExcavationSquarePtr getExcavationSquare(const size_t i) { return excavationSquares_.at(i); }
     const std::vector<ExcavationSquarePtr> getExcavationSquares() { return excavationSquares_; }
+
+    GalleryPtr getGallery(const size_t i) { return galleries_.at(i); }
 
     void reasonExcavationSquareColors();
 
@@ -43,7 +46,7 @@ class Table {
     std::vector<std::shared_ptr<Hexa>> hexas_;
     std::unordered_map<std::string, HexaPtr> nameToHexa_;
     std::unordered_map<eDispenser, Dispenser> dispensers_;
-    // std::unordered_map<eColor, void> galleries_;        // TODO
+    std::vector<std::shared_ptr<Gallery>> galleries_;
     std::vector<ExcavationSquarePtr> excavationSquares_;
     std::unordered_map<eColor, WorkShed> sheds_;
     // std::unordered_map<eColor, void> statuetteStands_;  // TODO
@@ -55,6 +58,7 @@ class Table {
     void createSheds();
     void fillShedsWithHexas();
     void createExcavationSquares();
+    void createGalleries();
 
     bool isOneExcavationSquareUnknown(const std::vector<size_t>& amongst) const;
     bool isOneExcavationSquareKnown(const std::vector<size_t>& amongst) const;

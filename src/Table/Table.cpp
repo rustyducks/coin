@@ -15,6 +15,9 @@ Table::Table() : isStatuetteOnPedestal(true), isReplicaOnPedestal(false), isStat
 
     createExcavationSquares();
     assert(excavationSquares_.size() == 10);
+
+    createGalleries();
+    assert(galleries_.size() == 6);
 }
 
 void Table::createDispensers() {
@@ -247,6 +250,16 @@ int Table::countPoints(bool isCrolonome, eColor color, PointOriented robotPose) 
     } else {
         return 0.;
     }
+}
+
+void Table::createGalleries() {
+    assert(galleries_.empty());
+    galleries_.push_back(std::make_shared<Gallery>(Point(570., 2900.), eColor::YELLOW, Hexa::eColor::BLUE));
+    galleries_.push_back(std::make_shared<Gallery>(Point(810., 2900.), eColor::YELLOW, Hexa::eColor::GREEN));
+    galleries_.push_back(std::make_shared<Gallery>(Point(1050., 2900.), eColor::YELLOW, Hexa::eColor::RED));
+    galleries_.push_back(std::make_shared<Gallery>(Point(1950., 2900.), eColor::PURPLE, Hexa::eColor::RED));
+    galleries_.push_back(std::make_shared<Gallery>(Point(2190., 2900.), eColor::PURPLE, Hexa::eColor::GREEN));
+    galleries_.push_back(std::make_shared<Gallery>(Point(2430., 2900.), eColor::PURPLE, Hexa::eColor::BLUE));
 }
 
 }  // namespace rd
