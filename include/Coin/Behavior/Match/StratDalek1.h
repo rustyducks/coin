@@ -38,8 +38,8 @@ ActionJuggler createStratDalek1(Robot& robot, Table& table) {
     yellowFirstGreen->setOnSuccess(yellowFirstRed);
     purpleFirstGreen->setOnSuccess(purpleFirstRed);
 
-    auto yellowFirstBlue = std::make_shared<TakeHexaAction>(sTakeHexaTraj({PointOriented(710., 1510., 0.), false, false}),
-                                                            sTakeHexaTraj({PointOriented(600., 1510., M_PI / 2.), true, false}), Arm::ARM_1,
+    auto yellowFirstBlue = std::make_shared<TakeHexaAction>(sTakeHexaTraj({PointOriented(710., 1370., 0.), false, false}),
+                                                            sTakeHexaTraj({PointOriented(600., 1370., M_PI / 2.), true, false}), Arm::ARM_1,
                                                             table.getHexaByName("Campsite Yellow Blue"));
     auto purpleFirstBlue = std::make_shared<TakeHexaAction>(sTakeHexaTraj({PointOriented(2270., 1510., M_PI), false, false}),
                                                             sTakeHexaTraj({PointOriented(2540., 1510., M_PI / 2), true, false}), Arm::ARM_1,
