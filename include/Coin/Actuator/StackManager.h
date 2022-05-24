@@ -32,9 +32,12 @@ class StackManager : public ActuatorBase<ProcedureInput> {
     size_t getStackSize() { return inStack_.size(); }
     double getStackHeight() { return inStack_.size() * HEXA_HEIGHT; }
 
+    HexaPtr getTopHexa() const { return inStack_.back(); }
+
     ProcedureInput::eStatus getStatus() { return status_; }
 
     const double BASE_STACK_TO_ARM_HOME_HEIGHT = 150.;
+    const double SUCCION_TO_STACK_OFFSET = 65.;
 
    protected:
     const double HEXA_HEIGHT = 15.;
