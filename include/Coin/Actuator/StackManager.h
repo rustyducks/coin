@@ -18,6 +18,7 @@ class StackManager : public ActuatorBase<ProcedureInput> {
     void sendPutOnStack(const int armid, const int height);
     void sendTurnAndPutOnStack(const int armid, const int height);
     void sendTakeFromStack(const int armid, const int height);
+    void sendHalfTakeFromStack(const int armid, const int height);
 
     bool initArms();
 
@@ -37,13 +38,7 @@ class StackManager : public ActuatorBase<ProcedureInput> {
 
    protected:
     const double HEXA_HEIGHT = 15.;
-    enum eProcedure {
-        None,
-        Home,
-        PutOnStack,
-        TurnAndPutOnStack,
-        TakeFromStack,
-    };
+    enum eProcedure { None, Home, PutOnStack, TurnAndPutOnStack, TakeFromStack, HalfTakeFromStack };
     enum eArmInitState { IDLE, ARM1_INITIALIZING, ARM2_INITIALIZING, INITIALIZED };
     eArmInitState armInitState_;
     Arm& arm1_;

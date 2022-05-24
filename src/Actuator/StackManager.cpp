@@ -57,6 +57,15 @@ void StackManager::sendTakeFromStack(const int armid, const int height) {
     status_ = ProcedureInput::RUNNING;
     minProcedureDuration_.start();
 }
+
+void StackManager::sendHalfTakeFromStack(const int armid, const int height) {
+    if (armid > 1) {
+        return;
+    }
+    procedureSender_.sendProcedureCommand(armid, protoduck::Procedure_Proc::Procedure_Proc_HALF_UNSTACK, height);
+    lastProcedure_ = eProcedure::HalfTakeFromStack;
+    status_ = ProcedureInput::RUNNING;
+    minProcedureDuration_.start();
 }
 
 bool StackManager::initArms() {
