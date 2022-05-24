@@ -10,12 +10,19 @@ Locomotion::Locomotion(PositionControlParameters positionControlParameters, Comm
       adversaries_(),
       parameters_(positionControlParameters),
       positionControlType_(IDLE),
-      positionControl_(positionControlParameters, 1.5, 150.),
+      polarControl_(positionControlParameters, 1.5),
       goToPointHolonomic_(positionControlParameters, 1.8),
+      positionControl_(positionControlParameters, 1.5, 150.),
+
       targetSpeed_(0., 0., 0.),
       lastCommand_(0., 0., 0.),
       robotBlocked_(false),
       robotBlockedSince_() {}
+
+void Locomotion::goToPointDiff(const PointOriented& pt, bool backwards, bool withFirstRotation) {
+    polarControl_.setTargetPoint(pt, backwards, withFirstRotation);
+    positionControlType_ = GO_TO_DIFF;
+}
 
 void Locomotion::followTrajectory(const Trajectory& traj) {
     positionControl_.setTrajectory(traj);
@@ -36,7 +43,7 @@ Speed Locomotion::run(const double dt) {
             break;
 
         case POSITION_CONTROL: {
-            outputSpeed = positionControl_.computeSpeed(robotPose_, lastCommand_, dt, 0.);
+            outputSpeed = positionControl_.computeSpeed(robotPose_, lastCommand_, dt, 99999.);
             if (positionControl_.isGoalReached()) {
                 outputSpeed = Speed(0., 0., 0.);
                 positionControlType_ = IDLE;
@@ -86,6 +93,14 @@ Speed Locomotion::run(const double dt) {
                 outputSpeed = Speed(correctedLinearSpeed * c, correctedLinearSpeed * s, computedSpeed.vtheta());
             }
         } break;
+
+        case GO_TO_DIFF:
+            outputSpeed = polarControl_.computeSpeed(robotPose_, lastCommand_, dt, 9999999.);
+            if (polarControl_.isGoalReached()) {
+                outputSpeed = Speed(0., 0., 0.);
+                positionControlType_ = IDLE;
+            }
+            break;
 
         default:
             outputSpeed = Speed(0., 0., 0.);

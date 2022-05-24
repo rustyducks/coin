@@ -3,6 +3,7 @@
 
 #include "Coin/Communication/CommunicationBase.h"
 #include "Navigation/GoToPointHolonomic.h"
+#include "Navigation/PolarControl.h"
 #include "Navigation/PositionControlBase.h"
 #include "Navigation/PurePursuitControl.h"
 #include "chrono"
@@ -18,6 +19,7 @@ class Locomotion {
 
     void followTrajectory(const Trajectory& traj);
 
+    void goToPointDiff(const PointOriented& pt, bool backwards, bool withFirstRotation);
     void goToPointHolonomic(const PointOriented& pt);
 
     void updateRobotPose(PointOrientedInputWithTimestamp poseStamped) {
@@ -63,8 +65,9 @@ class Locomotion {
     PositionControlParameters parameters_;
     enum ePositionControlType { IDLE, SPEED, POSITION_CONTROL, GO_TO_HOLONOMIC, GO_TO_DIFF };
     ePositionControlType positionControlType_;
-    PurePursuitControl positionControl_;
+    PolarControl polarControl_;
     GoToPointHolonomic goToPointHolonomic_;
+    PurePursuitControl positionControl_;
 
     Speed targetSpeed_;
 
