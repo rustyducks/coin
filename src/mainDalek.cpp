@@ -10,7 +10,7 @@
 #include "Coin/Actuator/HMI.h"
 #include "Coin/Actuator/Hat.h"
 #include "Coin/Actuator/StackManager.h"
-#include "Coin/Behavior/Match/Strat1.h"
+#include "Coin/Behavior/Match/StratDalek1.h"
 #include "Coin/Communication/Ducklink/UDPDucklinkCommunication.h"
 #include "Coin/Communication/UDPJson.h"
 #include "Coin/Locomotion/Locomotion.h"
@@ -44,13 +44,17 @@ int main(int, char**) {
     };
 
     rd::Robot dalek(motorDucklink, ioDucklink, lidarDucklink, robotParams, false, table);
-    rd::ActionJuggler actionJuggler = rd::createStrat1(dalek, table);
+    dalek.locomotion.forceRobotPose(rd::PointOriented(90., 1445., 0));
+    // dalek.locomotion.goToPointDiff({100., 1060., 0.}, true, true);
+    rd::ActionJuggler actionJuggler = rd::createStratDalek1(dalek, table);
 
     std::default_random_engine generator;
     std::chrono::steady_clock::time_point lastControl = std::chrono::steady_clock::now();
     // std::chrono::steady_clock::time_point lastSimu = std::chrono::steady_clock::now();
     std::chrono::steady_clock::time_point lastBehavior = std::chrono::steady_clock::now();
     std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+
+    std::cout << "GO ? " << std::endl;
 
     // rd::Robot mainRobot;
     //  rd::Slave behavior(mainRobot);
@@ -98,12 +102,12 @@ int main(int, char**) {
 
         double dt = std::chrono::duration_cast<std::chrono::microseconds>(now - lastControl).count() / 1000000.;
         rd::Speed speedCmd;
-        if (dt > 0.05) {
+        if (dt > 0.1) {
             /*if (dt > 5.10) {
                 std::cout << "Position Control loop missed by: " << dt - 5. << "s" << std::endl;
             }*/
-            if (dtBehavior >= 0.1 * 1.2) {
-                std::cout << "Warning behavior loop exceeded by " << dtBehavior - 0.1 << "s" << std::endl;
+            if (dt >= 0.1 * 1.2) {
+                std::cout << "Warning control loop exceeded by " << dt - 0.1 << "s" << std::endl;
             }
             lastControl = now;
             // std::cout << "dt: " << dt << std::endl;
