@@ -3,8 +3,8 @@
 namespace rd {
 StatuetteArm::StatuetteArm(ProcedureCommandSenderInterface& procedureSender)
     : armState_(RETRACTED), magnetState_(OFF), lastCommand_({RETRACTED, OFF}), procedureSender_(procedureSender), hasStatuette_(false) {
-    retractArm();
-    magnet(false);
+    // retractArm();
+    // magnet(false);
 }
 
 void StatuetteArm::updateState(const ProcedureInput&) {

@@ -3,7 +3,7 @@
 namespace rd {
 ReplicaHolder::ReplicaHolder(ProcedureCommandSenderInterface& procedureSender)
     : procedureSender_(procedureSender), state_(eState::HOLDING), hasReplica_(true), status_(ProcedureInput::eStatus::SUCCESS) {
-    hold();
+    // hold();
 }
 
 void ReplicaHolder::release() {
