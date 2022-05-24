@@ -47,7 +47,6 @@ void ActionJuggler::tick() {
             return;
         }
     }
-    std::cout << actionState_ << std::endl;
     switch (actionState_) {
         case GO_TO:
             if (robot_.locomotion.robotBlockedDuration() > action_->blockedDuration()) {
