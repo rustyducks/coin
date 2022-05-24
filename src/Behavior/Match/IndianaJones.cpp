@@ -7,20 +7,28 @@ IndianaJones::IndianaJones(const std::string& name, const PointOriented entryPoi
     : Action(name, std::make_shared<PointOriented>(entryPoint), std::make_shared<PointOriented>(exitPoint)),
       state_(IDLE),
       takeStatuettePoint_(takeStatuettePoint),
-      dropReplicaPoint_(dropReplicaPoint) {}
+      dropReplicaPoint_(dropReplicaPoint),
+      catchStatuetteWait_(0.75),
+      dropReplicaWait_(0.5) {}
 
 ActionPtr IndianaJones::run(Robot& robot) {
     switch (state_) {
         case IDLE:
-            robot.statuetteArm.magnet(true);
             robot.locomotion.goToPointHolonomic(takeStatuettePoint_);
             state_ = APPROACHING_STATUETTE;
             break;
         case APPROACHING_STATUETTE:
             if (robot.locomotion.isGoalReached()) {
+                robot.statuetteArm.magnet(true);
                 robot.statuetteArm.deployArm();
-                robot.statuetteArm.setStatuetteCatched();
+                catchStatuetteWait_.start();
+                state_ = CATCHING_STATUETTE;
+            }
+            break;
+        case CATCHING_STATUETTE:
+            if (catchStatuetteWait_.check()) {
                 robot.locomotion.goToPointHolonomic(dropReplicaPoint_);
+                robot.statuetteArm.setStatuetteCatched();
                 robot.table.isStatuetteOnPedestal = false;
                 state_ = APPROACHING_REPLICA_DROP;
             }
@@ -28,14 +36,16 @@ ActionPtr IndianaJones::run(Robot& robot) {
         case APPROACHING_REPLICA_DROP:
             if (robot.locomotion.isGoalReached()) {
                 robot.replicaHolder.release();
-                robot.table.isReplicaOnPedestal = true;
+                dropReplicaWait_.start();
                 state_ = DROPPING;
             }
             break;
         case DROPPING:
-            // Set small wait time
-            state_ = DONE;
-            return onSuccess_;
+            if (dropReplicaWait_.check()) {
+                robot.table.isReplicaOnPedestal = true;
+                state_ = DONE;
+                return onSuccess_;
+            }
             break;
         case DONE:
             return onSuccess_;

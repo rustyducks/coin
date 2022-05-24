@@ -2,6 +2,7 @@
 #define INDIANAJONES_H
 
 #include "Coin/Behavior/Match/Action.h"
+#include "Coin/Behavior/Timer.h"
 
 namespace rd {
 class IndianaJones : public Action {
@@ -18,11 +19,14 @@ class IndianaJones : public Action {
     const ActionPtr onSuccess() const { return onSuccess_; }
 
    protected:
-    enum eState { IDLE, APPROACHING_STATUETTE, APPROACHING_REPLICA_DROP, DROPPING, DONE };
+    enum eState { IDLE, APPROACHING_STATUETTE, CATCHING_STATUETTE, APPROACHING_REPLICA_DROP, DROPPING, DONE };
     eState state_;
     PointOriented takeStatuettePoint_;
     PointOriented dropReplicaPoint_;
     ActionPtr onSuccess_;
+
+    Timer catchStatuetteWait_;
+    Timer dropReplicaWait_;
 };
 }  // namespace rd
 
