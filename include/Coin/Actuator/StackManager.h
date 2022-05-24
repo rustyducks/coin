@@ -4,6 +4,7 @@
 #include "Coin/Actuator/ActuatorBase.h"
 #include "Coin/Actuator/Arm.h"
 #include "Coin/Actuator/Hat.h"
+#include "Coin/Behavior/Timer.h"
 #include "Coin/Communication/CommunicationBase.h"
 #include "Coin/Table/Hexa.h"
 
@@ -53,6 +54,8 @@ class StackManager : public ActuatorBase<ProcedureInput> {
     ProcedureInput::eStatus status_;
 
     std::vector<HexaPtr> inStack_;
+
+    Timer minProcedureDuration_;
 };
 }  // namespace rd
 

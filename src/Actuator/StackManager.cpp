@@ -8,9 +8,18 @@ StackManager::StackManager(Arm& arm1, Arm& arm2, Hat& hat, ProcedureCommandSende
       hat_(hat),
       procedureSender_(procedureSender),
       lastProcedure_(eProcedure::None),
-      status_(rd::ProcedureInput::SUCCESS) {}
+      status_(rd::ProcedureInput::SUCCESS),
+      minProcedureDuration_(1.0) {}
 
-void StackManager::updateState(const ProcedureInput& input) { status_ = input.status_; }  // TODO: Add stack representation and hexa put on stack or removed
+void StackManager::updateState(const ProcedureInput& input) {
+    if (status_ != ProcedureInput::eStatus::SUCCESS && input.status_ == ProcedureInput::eStatus::SUCCESS) {
+        if (minProcedureDuration_.isStarted() && !minProcedureDuration_.check()) {
+            // False success, probably from previous procedure
+            return;
+        }
+    }
+    status_ = input.status_;
+}  // TODO: Add stack representation and hexa put on stack or removed
 void StackManager::sendHome(const int armid) {
     if (armid > 1) {
         return;
@@ -18,6 +27,7 @@ void StackManager::sendHome(const int armid) {
     procedureSender_.sendProcedureCommand(armid, protoduck::Procedure_Proc::Procedure_Proc_HOME, 0);
     lastProcedure_ = eProcedure::Home;
     status_ = ProcedureInput::RUNNING;
+    minProcedureDuration_.start();
 }
 void StackManager::sendPutOnStack(const int armid, const int height) {
     if (armid > 1) {
@@ -26,6 +36,7 @@ void StackManager::sendPutOnStack(const int armid, const int height) {
     procedureSender_.sendProcedureCommand(armid, protoduck::Procedure_Proc::Procedure_Proc_PUT_ON_STACK, height);
     lastProcedure_ = eProcedure::PutOnStack;
     status_ = ProcedureInput::RUNNING;
+    minProcedureDuration_.start();
 }
 void StackManager::sendTurnAndPutOnStack(const int armid, const int height) {
     if (armid > 1) {
@@ -34,6 +45,7 @@ void StackManager::sendTurnAndPutOnStack(const int armid, const int height) {
     procedureSender_.sendProcedureCommand(armid, protoduck::Procedure_Proc::Procedure_Proc_TURN_AND_PUT_ON_STACK, height);
     lastProcedure_ = eProcedure::TurnAndPutOnStack;
     status_ = ProcedureInput::RUNNING;
+    minProcedureDuration_.start();
 }
 
 void StackManager::sendTakeFromStack(const int armid, const int height) {
@@ -43,6 +55,8 @@ void StackManager::sendTakeFromStack(const int armid, const int height) {
     procedureSender_.sendProcedureCommand(armid, protoduck::Procedure_Proc::Procedure_Proc_TAKE_FROM_STACK, height);
     lastProcedure_ = eProcedure::TakeFromStack;
     status_ = ProcedureInput::RUNNING;
+    minProcedureDuration_.start();
+}
 }
 
 bool StackManager::initArms() {
