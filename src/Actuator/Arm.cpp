@@ -18,14 +18,16 @@ void Arm::setJoint(const eJoint& joint, const double value) {
 
 void Arm::startPump(bool enable) {
     lastCommand_.pumpEnabled = enable;
-    sender_.sendArmCommand(armId_, lastCommand_.position.at(eJoint::Z_PRISMATIC), lastCommand_.position.at(eJoint::Z_ROTATIONAL),
-                           lastCommand_.position.at(eJoint::Y_ROTATIONAL), lastCommand_.pumpEnabled, lastCommand_.valveOpen);
+    sender_.sendArmCommand(armId_, position_.at(eJoint::Z_PRISMATIC), position_.at(eJoint::Z_ROTATIONAL), position_.at(eJoint::Y_ROTATIONAL), enable,
+                           valveOpen_);
+    pumpEnabled_ = enable;
 }
 
 void Arm::openValve(bool open) {
     lastCommand_.valveOpen = open;
-    sender_.sendArmCommand(armId_, lastCommand_.position.at(eJoint::Z_PRISMATIC), lastCommand_.position.at(eJoint::Z_ROTATIONAL),
-                           lastCommand_.position.at(eJoint::Y_ROTATIONAL), lastCommand_.pumpEnabled, lastCommand_.valveOpen);
+    sender_.sendArmCommand(armId_, position_.at(eJoint::Z_PRISMATIC), position_.at(eJoint::Z_ROTATIONAL), position_.at(eJoint::Y_ROTATIONAL), pumpEnabled_,
+                           open);
+    valveOpen_ = open;
 }
 
 void Arm::updateState(const ArmInput& input) {
