@@ -24,9 +24,17 @@ void ActionJuggler::tick() {
             if (toAlmostEndPoint >= robot_.almostEndMatchTime()) {
                 action_->deinit(robot_);
                 if (robot_.color == robot_.YELLOW) {
-                    robot_.locomotion.goToPointHolonomic(almostEndMatchYellow_);
+                    if (robot_.holonomic()) {
+                        robot_.locomotion.goToPointHolonomic(almostEndMatchYellow_);
+                    } else {
+                        robot_.locomotion.goToPointDiff(almostEndMatchYellow_, false, true);
+                    }
                 } else {
-                    robot_.locomotion.goToPointHolonomic(almostEndMatchPurple_);
+                    if (robot_.holonomic()) {
+                        robot_.locomotion.goToPointHolonomic(almostEndMatchPurple_);
+                    } else {
+                        robot_.locomotion.goToPointDiff(almostEndMatchPurple_, false, true);
+                    }
                 }
                 std::cout << "[ActionJuggler] If we don't want to be like the white rabbit, we should got now! (almost end match)" << std::endl;
                 almostEndStarted_ = true;
@@ -39,7 +47,7 @@ void ActionJuggler::tick() {
             return;
         }
     }
-
+    std::cout << actionState_ << std::endl;
     switch (actionState_) {
         case GO_TO:
             if (robot_.locomotion.robotBlockedDuration() > action_->blockedDuration()) {
@@ -109,6 +117,12 @@ bool ActionJuggler::setFirstAction(ActionPtr firstAction) {
         std::cout << "No almost end point set in action juggler... integrity checks failed" << std::endl;
     }
     action_ = firstAction;
+    if (action_->goTo(robot_.locomotion.robotPose(), robot_)) {
+        actionState_ = GO_TO;
+    } else {
+        actionState_ = FSM;
+    }
+
     return true;
 }
 
