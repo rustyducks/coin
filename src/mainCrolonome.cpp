@@ -34,7 +34,7 @@ int main(int, char**) {
     //  rd::UDPDucklinkInput udpClientAnatidaeServer("0.0.0.0", 9999);
 
     rd::PositionControlParameters robotParams = {
-        150.,       // maxLinearAcceleration
+        120.,       // maxLinearAcceleration
         400.,       // maxLinearSpeed
         0.3,        // maxRotationalAcceleration
         1.0,        // maxRotationalSpeed

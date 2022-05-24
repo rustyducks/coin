@@ -11,7 +11,7 @@ Locomotion::Locomotion(PositionControlParameters positionControlParameters, Comm
       parameters_(positionControlParameters),
       positionControlType_(IDLE),
       polarControl_(positionControlParameters, 1.5),
-      goToPointHolonomic_(positionControlParameters, 1.8),
+      goToPointHolonomic_(positionControlParameters, 1.9),
       positionControl_(positionControlParameters, 1.5, 150.),
 
       targetSpeed_(0., 0., 0.),
