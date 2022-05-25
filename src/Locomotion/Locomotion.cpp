@@ -141,6 +141,15 @@ Speed Locomotion::run(const double dt) {
             outputSpeed = Speed(0., 0., 0.);
             break;
     }
+    if (std::isnan(outputSpeed.vx())) {
+        outputSpeed = Speed(0., outputSpeed.vy(), outputSpeed.vtheta());
+    }
+    if (std::isnan(outputSpeed.vy())) {
+        outputSpeed = Speed(outputSpeed.vx(), 0., outputSpeed.vtheta());
+    }
+    if (std::isnan(outputSpeed.vtheta())) {
+        outputSpeed = Speed(outputSpeed.vx(), outputSpeed.vy(), 0.);
+    }
     lastCommand_ = outputSpeed;
     communicationBase_.sendSpeed(outputSpeed);
     return outputSpeed;
