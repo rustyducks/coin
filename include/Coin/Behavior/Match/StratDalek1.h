@@ -48,14 +48,20 @@ ActionJuggler createStratDalek1(Robot& robot, Table& table) {
     yellowFirstRed->setOnSuccess(yellowFirstBlue);
     purpleFirstRed->setOnSuccess(purpleFirstBlue);
 
+    auto goToInFrontOfYellowBlue =
+        std::make_shared<GoToDiffAction>("Move In Front Gallery Yellow Blue", sGoToDiffTraj({PointOriented(600., 1600., M_PI_2), false, true}));
+    auto goToInFrontOfPurpleBlue =
+        std::make_shared<GoToDiffAction>("Move In Front Gallery Purple Blue", sGoToDiffTraj({PointOriented(2540., 1600., M_PI_2), false, true}));
+
+    yellowFirstBlue->setOnSuccess(goToInFrontOfYellowBlue);
+    purpleFirstBlue->setOnSuccess(goToInFrontOfPurpleBlue);
+
     auto dropInYellowBlue =
         std::make_shared<DropHexaInGallery>(sDropHexaTraj({PointOriented(600., 1760., M_PI / 2), false, false}),
                                             sDropHexaTraj({PointOriented(600., 1600., M_PI / 2), true, false}), Arm::ARM_1, table.getGallery(0));
     auto dropInPurpleBlue =
         std::make_shared<DropHexaInGallery>(sDropHexaTraj({PointOriented(2540., 1760., M_PI / 2), false, true}),
                                             sDropHexaTraj({PointOriented(2540., 1600., M_PI / 2), true, false}), Arm::ARM_1, table.getGallery(5));
-    yellowFirstBlue->setOnSuccess(dropInYellowBlue);
-    purpleFirstBlue->setOnSuccess(dropInPurpleBlue);
 
     auto goToInFrontOfYellowRed =
         std::make_shared<GoToDiffAction>("Move In Front Gallery Yellow Red", sGoToDiffTraj({PointOriented(1080., 1600., M_PI_2), false, true}));
