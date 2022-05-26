@@ -25,6 +25,16 @@ ActionPtr DropHexaInGallery::run(Robot& robot) {
                 robot.locomotion.goToPointDiff(goTo_.pt, goTo_.backwards, goTo_.withFirstRotation);
                 state_ = APPROACHING;
             }
+            if (robot.stackManager.getStatus() == ProcedureInput::eStatus::FAILURE || (halfUnstackingTimeout_.isStarted() && halfUnstackingTimeout_.check())) {
+                if (onFailure_ != nullptr) {
+                    std::cout << "[DropHexaInGallery] Failure, pop from stack and returns onFailure..." << std::endl;
+                    robot.stackManager.popHexaFromStack();
+                    return onFailure_;
+                } else {
+                    std::cout << "[DropHexaInGallery] Failure, but no onFailure set..." << std::endl;
+                    state_ = APPROACHING;
+                }
+            }
             break;
 
         case APPROACHING:
