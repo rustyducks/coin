@@ -62,6 +62,11 @@ void Robot::sense() {
             locomotion.updateAdversaries(msg);
         }
     }
+    if (holonomic_) {
+        if (color == eColor::PURPLE) {
+            borderSensorPurple.sense();
+        }
+    }
 }
 
 void Robot::startMatch() {

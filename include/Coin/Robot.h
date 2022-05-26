@@ -11,6 +11,7 @@
 #include "Coin/Actuator/StatuetteArm.h"
 #include "Coin/Communication/Ducklink/UDPDucklinkCommunication.h"
 #include "Coin/Locomotion/Locomotion.h"
+#include "Coin/Sensors/VL6180.h"
 #include "Coin/Table/Table.h"
 
 namespace rd {
@@ -36,6 +37,10 @@ class Robot {
     Finger finger;
     ReplicaHolder replicaHolder;
     StatuetteArm statuetteArm;
+    VL6180 borderSensorYellow;
+    VL6180 borderSensorPurple;
+    VL6180 excavationSensor;
+
     eColor color;
 
     Table& table;

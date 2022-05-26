@@ -2,13 +2,13 @@
 #define LOCOMOTION_H
 
 #include "Coin/Communication/CommunicationBase.h"
+#include "Coin/Sensors/VL6180.h"
 #include "Navigation/GoToPointHolonomic.h"
 #include "Navigation/PolarControl.h"
 #include "Navigation/PositionControlBase.h"
 #include "Navigation/PurePursuitControl.h"
 #include "chrono"
 #include "memory"
-
 namespace rd {
 
 class Locomotion {
@@ -21,6 +21,7 @@ class Locomotion {
 
     void goToPointDiff(const PointOriented& pt, bool backwards, bool withFirstRotation);
     void goToPointHolonomic(const PointOriented& pt);
+    void align(const double targetDistance, VL6180* sensor, bool inverted);
 
     void updateRobotPose(PointOrientedInputWithTimestamp poseStamped) {
         robotPose_ = poseStamped.getPoint();
@@ -63,7 +64,7 @@ class Locomotion {
     std::vector<std::pair<int, Point>> adversaries_;
 
     PositionControlParameters parameters_;
-    enum ePositionControlType { IDLE, SPEED, POSITION_CONTROL, GO_TO_HOLONOMIC, GO_TO_DIFF };
+    enum ePositionControlType { IDLE, SPEED, POSITION_CONTROL, GO_TO_HOLONOMIC, GO_TO_DIFF, ALIGNING };
     ePositionControlType positionControlType_;
     PolarControl polarControl_;
     GoToPointHolonomic goToPointHolonomic_;
@@ -75,6 +76,9 @@ class Locomotion {
 
     bool robotBlocked_;
     std::chrono::steady_clock::time_point robotBlockedSince_;
+    VL6180* alignSensor_;
+    double alignTargetDistance_;
+    bool inverted_;
 };
 
 }  // namespace rd

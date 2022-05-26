@@ -34,6 +34,13 @@ void Locomotion::goToPointHolonomic(const PointOriented& pt) {
     positionControlType_ = GO_TO_HOLONOMIC;
 }
 
+void Locomotion::align(const double targetDistance, VL6180* sensor, bool inverted) {
+    alignSensor_ = sensor;
+    alignTargetDistance_ = targetDistance;
+    inverted_ = inverted;
+    positionControlType_ = ALIGNING;
+}
+
 Speed Locomotion::run(const double dt) {
     // predictRobotPose();
     Speed outputSpeed = Speed(0., 0., 0.);
@@ -136,6 +143,31 @@ Speed Locomotion::run(const double dt) {
                 outputSpeed = Speed(correctedLinearSpeed * c, 0, computedSpeed.vtheta());
             }
         } break;
+
+        case ALIGNING: {
+            if (alignSensor_ == nullptr) {
+                std::cout << "[Locomotion] In aligning mode, but align sensor is nullptr" << std::endl;
+            }
+            outputSpeed = Speed(0., 0., 0.);
+            if (alignSensor_->isValid() && !alignSensor_->isOverflow()) {
+                if (alignSensor_->getDistance() < alignTargetDistance_ - 3.) {
+                    if (inverted_) {
+                        outputSpeed = Speed(0., -parameters_.minLinearSpeed, 0.);
+                    } else {
+                        outputSpeed = Speed(0., parameters_.minLinearSpeed, 0.);
+                    }
+                } else if (alignSensor_->getDistance() > alignTargetDistance_ + 3.) {
+                    if (inverted_) {
+                        outputSpeed = Speed(0., parameters_.minLinearSpeed, 0.);
+                    } else {
+                        outputSpeed = Speed(0., -parameters_.minLinearSpeed, 0.);
+                    }
+                } else {
+                    outputSpeed = Speed(0., 0., 0.);
+                    positionControlType_ = IDLE;
+                }
+            }
+        }
 
         default:
             outputSpeed = Speed(0., 0., 0.);
