@@ -150,17 +150,21 @@ Speed Locomotion::run(const double dt) {
             }
             outputSpeed = Speed(0., 0., 0.);
             if (alignSensor_->isValid() && !alignSensor_->isOverflow()) {
+                std::cout << "Aligning distance: " << alignSensor_->getDistance() << " Setpoint: " << alignTargetDistance_ << std::endl;
+                double c = std::cos(robotPose_.theta().value());
+                double s = std::sin(robotPose_.theta().value());
+                std::cout << "c:" << c << "\t " << s << std::endl;
                 if (alignSensor_->getDistance() < alignTargetDistance_ - 3.) {
                     if (inverted_) {
-                        outputSpeed = Speed(-parameters_.minLinearSpeed, 0., 0.);
+                        outputSpeed = Speed(c * parameters_.minLinearSpeed, -s * parameters_.minLinearSpeed, 0.);
                     } else {
-                        outputSpeed = Speed(parameters_.minLinearSpeed, 0., 0.);
+                        outputSpeed = Speed(-c * parameters_.minLinearSpeed, s * parameters_.minLinearSpeed, 0.);
                     }
                 } else if (alignSensor_->getDistance() > alignTargetDistance_ + 3.) {
                     if (inverted_) {
-                        outputSpeed = Speed(parameters_.minLinearSpeed, 0., 0.);
+                        outputSpeed = Speed(-c * parameters_.minLinearSpeed, s * parameters_.minLinearSpeed, 0.);
                     } else {
-                        outputSpeed = Speed(-parameters_.minLinearSpeed, 0., 0.);
+                        outputSpeed = Speed(c * parameters_.minLinearSpeed, -s * parameters_.minLinearSpeed, 0.);
                     }
                 } else {
                     outputSpeed = Speed(0., 0., 0.);

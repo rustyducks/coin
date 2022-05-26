@@ -35,7 +35,7 @@ ActionJuggler createStratCrolonome1(Robot& robot, Table& table) {
         std::cout << table.getExcavationSquare(i)->id() << ":" << i << std::endl;
 
         if (i == 3 || i == 4) {
-            excavationActionsPurple.push_back(std::make_shared<ExcavationAction>(table.getExcavationSquare(i), 50.));
+            excavationActionsPurple.push_back(std::make_shared<ExcavationAction>(table.getExcavationSquare(i), 30.));
         } else {
             excavationActionsPurple.push_back(std::make_shared<ExcavationAction>(table.getExcavationSquare(i)));
         }
@@ -78,9 +78,9 @@ ActionJuggler createStratCrolonome1(Robot& robot, Table& table) {
     takeStatuettePurple->setOnSuccess(waitForDalekPurple);
 
     auto alignYellow =
-        std::make_shared<AlignDiffAction>("Align Yellow", PointOriented(300., 1600., 150. * M_PI / 180.), 135., false, robot.borderSensorYellow, 5.);
+        std::make_shared<AlignDiffAction>("Align Yellow", PointOriented(300., 1600., 150. * M_PI / 180.), 135., true, robot.borderSensorYellow, 5.);
     auto alignPurple =
-        std::make_shared<AlignDiffAction>("Align Purple", PointOriented(2810., 1600., 150. * M_PI / 180.), 80., true, robot.borderSensorPurple, 5.);
+        std::make_shared<AlignDiffAction>("Align Purple", PointOriented(2810., 1600., 150. * M_PI / 180.), 80., false, robot.borderSensorPurple, 5.);
 
     waitForDalekYellow->setOnTime(alignYellow);
     waitForDalekPurple->setOnTime(alignPurple);
