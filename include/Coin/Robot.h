@@ -45,6 +45,8 @@ class Robot {
     const clock::time_point almostEndMatchTime() { return almostEndMatchTime_; }
     const clock::time_point endMatchTime() { return endMatchTime_; }
 
+    double secondsSinceMatchStart() const { return std::chrono::duration_cast<std::chrono::microseconds>(clock::now() - startMatchTime_).count() / 1000000.; }
+
     void startMatch();
 
    protected:
@@ -54,6 +56,7 @@ class Robot {
     rd::UDPDucklink& lidarDucklink_;
 
     bool matchStarted_;
+    clock::time_point startMatchTime_;
     clock::time_point almostEndMatchTime_;
     clock::time_point endMatchTime_;
 };
