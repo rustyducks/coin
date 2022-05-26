@@ -248,7 +248,17 @@ int Table::countPoints(bool isCrolonome, eColor color, PointOriented robotPose) 
 
         return BASE_SCORE_CROLONOME + squarePoints + statuettePoints + comebackPoints;
     } else {
-        return 0.;
+        int galleryPoints = 0;
+        for (const auto& gallery : galleries_) {
+            if (gallery->sideColor() == color) {
+                for (const auto& hexa : gallery->getHexas()) {
+                    if (hexa->color_ == gallery->galleryColor()) {
+                        galleryPoints += 6;  // We should normally check if hexa is treasure or rock face
+                    }
+                }
+            }
+        }
+        return galleryPoints;
     }
 }
 
