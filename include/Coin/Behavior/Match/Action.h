@@ -24,6 +24,8 @@ class Action {
 
     double blockedDuration_;
 
+    bool isIntegrityChecked_;
+
    public:
     enum eIntegrityCheck { OK, WARNING, ERROR };
     // Action(Trajectory& goToApproach, const Point& entryPoint, ActionFSM& actionFSM, const Trajectory& retractTrajectory);
