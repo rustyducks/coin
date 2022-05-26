@@ -40,6 +40,8 @@ cmake -DCMAKE_INSTALL_PREFIX=$RUSTYDUCKS_WS_PATH_ARM -DCMAKE_BUILD_TYPE=$BUILD_T
 make -j8
 #make install
 
+ssh dalek 'sudo systemctl stop coindalek.service' || true 
 scp CoinDalek dalek:~/ || true
 
+ssh crolonome 'sudo systemctl stop coincrolonome.service' || true 
 scp CoinCrolonome crolonome:~/ || true
