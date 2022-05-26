@@ -1,5 +1,5 @@
-#ifndef GOTODIFFACTION_H
-#define GOTODIFFACTION_H
+#ifndef WAITFORMATCHTIMEACTION_H
+#define WAITFORMATCHTIMEACTION_H
 
 #include "Coin/Behavior/Match/Action.h"
 namespace rd {
@@ -35,4 +35,4 @@ class WaitForMatchTimeAction : public Action {
 };
 }  // namespace rd
 
-#endif /* GOTODIFFACTION_H */
+#endif /* WAITFORMATCHTIMEACTION_H */

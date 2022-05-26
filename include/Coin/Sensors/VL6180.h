@@ -15,8 +15,6 @@ class VL6180 {
 
     void changeAddr(int new_addr);
 
-    int getDistance();
-
     bool isValid() const { return (status_ == 0x0); }
     bool isOverflow() const { return (status_ == 0b0111 || status_ == 0b1101 || status_ == 0b1111); }
     int getDistance() const { return distance_; }
@@ -28,6 +26,8 @@ class VL6180 {
 
     enum eState { IDLE, RANGING, RESULT_AVAILABLE };
 
+    void sense();
+
    protected:
     int readByte(int reg);
     void writeByte(int reg, uint8_t data);
@@ -35,7 +35,6 @@ class VL6180 {
     void writeTwoBytes(int reg, uint16_t data);
     void startRange();
     bool pollRange();
-    void sense();
     bool inError();
 
     void clearInterrupts();

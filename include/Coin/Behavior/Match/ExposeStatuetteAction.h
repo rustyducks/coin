@@ -12,6 +12,21 @@ class ExposeStatuetteAction : public Action {
     virtual void deinit(Robot& robot);
     virtual bool isDeinit(Robot&) { return true; }
 
+    virtual bool goTo(const PointOriented& robotPose, Robot& robot) override {
+        if (goToPoint_ != nullptr) {
+            robot.locomotion.goToPointHolonomic(PointOriented(robotPose.x(), goToPoint_->y(), goToPoint_->theta().value()));
+            return true;
+        }
+        return false;
+    }
+    virtual bool retract(const PointOriented& robotPose, Robot& robot) override {
+        if (retractPoint_ != nullptr) {
+            robot.locomotion.goToPointHolonomic(PointOriented(robotPose.x(), retractPoint_->y(), retractPoint_->theta().value()));
+            return true;
+        }
+        return false;
+    }
+
     virtual Action::eIntegrityCheck checkIntegrity();
 
     void setOnSuccess(ActionPtr onSuccessAction) { onSuccess_ = onSuccessAction; }

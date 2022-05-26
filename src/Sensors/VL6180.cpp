@@ -28,7 +28,7 @@ int VL6180::readByte(int reg) {
 void VL6180::writeByte(int reg, uint8_t data) {
     if (handle_ == -1) {
         std::cout << "[VL6180] Writing byte from uninitialized sensor" << std::endl;
-        return -1;
+        return;
     }
     char data_write[3];
     data_write[0] = (reg >> 8) & 0xFF;
@@ -40,7 +40,7 @@ void VL6180::writeByte(int reg, uint8_t data) {
 void VL6180::writeTwoBytes(int reg, uint16_t data) {
     if (handle_ == -1) {
         std::cout << "[VL6180] Writing two bytes from uninitialized sensor" << std::endl;
-        return -1;
+        return;
     }
     char data_write[4];
     data_write[0] = (reg >> 8) & 0xFF;
@@ -114,6 +114,7 @@ int VL6180::initialize(int device, int addr) {
     }
 
     setScaling(1);
+    return 0;
 }
 
 void VL6180::setScaling(int scaling) {

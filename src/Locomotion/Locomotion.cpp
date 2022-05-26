@@ -152,22 +152,22 @@ Speed Locomotion::run(const double dt) {
             if (alignSensor_->isValid() && !alignSensor_->isOverflow()) {
                 if (alignSensor_->getDistance() < alignTargetDistance_ - 3.) {
                     if (inverted_) {
-                        outputSpeed = Speed(0., -parameters_.minLinearSpeed, 0.);
+                        outputSpeed = Speed(-parameters_.minLinearSpeed, 0., 0.);
                     } else {
-                        outputSpeed = Speed(0., parameters_.minLinearSpeed, 0.);
+                        outputSpeed = Speed(parameters_.minLinearSpeed, 0., 0.);
                     }
                 } else if (alignSensor_->getDistance() > alignTargetDistance_ + 3.) {
                     if (inverted_) {
-                        outputSpeed = Speed(0., parameters_.minLinearSpeed, 0.);
+                        outputSpeed = Speed(parameters_.minLinearSpeed, 0., 0.);
                     } else {
-                        outputSpeed = Speed(0., -parameters_.minLinearSpeed, 0.);
+                        outputSpeed = Speed(-parameters_.minLinearSpeed, 0., 0.);
                     }
                 } else {
                     outputSpeed = Speed(0., 0., 0.);
                     positionControlType_ = IDLE;
                 }
             }
-        }
+        } break;
 
         default:
             outputSpeed = Speed(0., 0., 0.);

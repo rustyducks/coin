@@ -1,5 +1,6 @@
 #include "Coin/Robot.h"
 
+#include "Coin/Sensors/GPIOHandler.h"
 #include "Navigation/PurePursuitControl.h"
 
 namespace rd {
@@ -21,7 +22,28 @@ Robot::Robot(UDPDucklink& motorDucklink, UDPDucklink& ioDucklink, UDPDucklink& l
       motorDucklink_(motorDucklink),
       ioDucklink_(ioDucklink),
       lidarDucklink_(lidarDucklink),
-      matchStarted_(false) {}
+      matchStarted_(false) {
+    setupPin(17, rd::eInputOutput::OUT);
+    setupPin(27, rd::eInputOutput::OUT);
+    setupPin(22, rd::eInputOutput::OUT);
+
+    // rd::digitalWrite(17, rd::eLowHigh::LOW);
+    digitalWrite(27, rd::eLowHigh::LOW);
+    digitalWrite(22, rd::eLowHigh::LOW);
+
+    digitalWrite(17, rd::eLowHigh::HIGH);
+    usleep(5000);
+    borderSensorPurple.initialize(1, 0x29);
+    borderSensorPurple.changeAddr(0x31);
+
+    digitalWrite(27, rd::eLowHigh::HIGH);
+    usleep(5000);
+    borderSensorYellow.initialize(1, 0x29);
+    borderSensorYellow.changeAddr(0x30);
+
+    digitalWrite(22, rd::eLowHigh::HIGH);
+    excavationSensor.initialize(1, 0x29);
+}
 
 void Robot::sense() {
     for (const auto& input : motorDucklink_.getInputs()) {
@@ -65,6 +87,8 @@ void Robot::sense() {
     if (holonomic_) {
         if (color == eColor::PURPLE) {
             borderSensorPurple.sense();
+        } else {
+            borderSensorYellow.sense();
         }
     }
 }

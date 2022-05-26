@@ -145,7 +145,6 @@ int main(int, char**) {
                     dalek.locomotion.updateRobotPose(rd::PointOrientedInput(rd::eInput::POSITION_REPORT, robotPose));
                     // udpClientJugglerPlot.sendSpeedJson(robotSpeed, "robot_speed");
                     udpClientJugglerPlot.sendPointOrientedJson(robotPose);
-
                     // udpClientAnatidae.sendPoseReport(robotPose);
                 }*/
 
