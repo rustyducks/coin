@@ -225,7 +225,7 @@ int Table::countPoints(bool isCrolonome, eColor color, PointOriented robotPose) 
             statuettePoints += 5;
         }
         if (isReplicaOnPedestal) {
-            statuettePoints += 10;
+            // statuettePoints += 10;  // To hard to do...
         }
         if (isStatuetteInCabinet) {
             statuettePoints += 15;
