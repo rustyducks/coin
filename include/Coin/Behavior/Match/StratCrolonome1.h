@@ -52,11 +52,11 @@ ActionJuggler createStratCrolonome1(Robot& robot, Table& table) {
 
     auto takeStatuetteYellow =
         std::make_shared<IndianaJones>("Indiana Jones Yellow", PointOriented(340., 400., -75. * M_PI / 180.), PointOriented(302., 357., -75. * M_PI / 180.),
-                                       PointOriented(345.5, 322.5, -75. * M_PI / 180.), PointOriented(376.5, 373.5, -75. * M_PI / 180.));
+                                       PointOriented(335., 312., -75. * M_PI / 180.), PointOriented(376.5, 373.5, -75. * M_PI / 180.));
 
     auto takeStatuettePurple =
         std::make_shared<IndianaJones>("Indiana Jones Purple", PointOriented(2560., 330., 15. * M_PI / 180.), PointOriented(2600., 290., 15. * M_PI / 180.),
-                                       PointOriented(2685., 365., 15. * M_PI / 180.), PointOriented(2590., 450., 15. * M_PI / 180.));
+                                       PointOriented(2671., 351., 15. * M_PI / 180.), PointOriented(2590., 450., 15. * M_PI / 180.));
 
     for (auto& yellowExcAct : excavationActionsYellow) {
         yellowExcAct->setOnSuccess(takeStatuetteYellow);
