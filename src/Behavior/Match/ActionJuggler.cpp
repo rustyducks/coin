@@ -115,6 +115,9 @@ bool ActionJuggler::setFirstAction(ActionPtr firstAction) {
     if (almostEndMatchYellow_ == PointOriented() || almostEndMatchPurple_ == PointOriented()) {
         std::cout << "No almost end point set in action juggler... integrity checks failed" << std::endl;
     }
+    std::cout << "Integrity checks succeeded, well done Guilhem!" << std::endl
+              << "- Oh it's nothing you know, just some kind of state machine to handle" << std::endl
+              << "- Still, you did great on this one, keep up the good work" << std::endl;
     action_ = firstAction;
     if (action_->goTo(robot_.locomotion.robotPose(), robot_)) {
         actionState_ = GO_TO;

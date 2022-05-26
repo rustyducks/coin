@@ -69,6 +69,7 @@ void Robot::startMatch() {
         matchStarted_ = true;
         almostEndMatchTime_ = clock::now() + std::chrono::seconds(ALMOST_END_DURATION);
         endMatchTime_ = clock::now() + std::chrono::seconds(MATCH_DURATION);
+        startMatchTime_ = clock::now();
     }
 }
 
