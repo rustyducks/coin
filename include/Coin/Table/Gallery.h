@@ -19,6 +19,7 @@ class Gallery {
     void addHexa(std::shared_ptr<Hexa> hexa) { hexas_.push_back(hexa); }
     eColor sideColor() const { return color_; }
     Hexa::eColor galleryColor() const { return galleryColor_; }
+    const std::vector<HexaPtr> getHexas() const { return hexas_; }
 
    protected:
     Point position_;
