@@ -7,20 +7,22 @@ ExposeStatuetteAction::ExposeStatuetteAction(const std::string& name, PointOrien
 
 ActionPtr ExposeStatuetteAction::run(Robot& robot) {
     switch (state_) {
-        case IDLE:
+        case IDLE: {
             robot.statuetteArm.deployArm();
-            robot.locomotion.goToPointHolonomic(exposePoint_);
+            PointOriented corrected(robot.locomotion.robotPose().x(), exposePoint_.y(), exposePoint_.theta().value());
+            robot.locomotion.goToPointHolonomic(corrected);
             state_ = APPROCHING;
-            break;
-        case APPROCHING:
+        } break;
+        case APPROCHING: {
             if (robot.locomotion.isGoalReached()) {
                 robot.statuetteArm.magnet(false);
-                robot.locomotion.goToPointHolonomic(exitPoint_);
+                PointOriented corrected(robot.locomotion.robotPose().x(), exitPoint_.y(), exitPoint_.theta().value());
+                robot.locomotion.goToPointHolonomic(corrected);
                 robot.table.isStatuetteInCabinet = true;
                 robot.table.isCabinetActivated = true;
                 state_ = RETREATING;
             }
-            break;
+        } break;
         case RETREATING:
             if (robot.locomotion.isGoalReached()) {
                 robot.statuetteArm.retractArm();
