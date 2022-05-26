@@ -35,6 +35,7 @@ class ExcavationAction : public Action {
     ActionPtr onSuccess_;  // What to do when no more squares are to flip
     Timer colorDetectionTimeout_;
     Timer fingerDeployWait_;
+    double offset_;
 };
 }  // namespace rd
 

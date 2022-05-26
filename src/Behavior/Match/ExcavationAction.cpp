@@ -6,13 +6,14 @@ ExcavationAction::ExcavationAction(ExcavationSquarePtr square, double offset)
       state_(IDLE),
       square_(square),
       colorDetectionTimeout_(3.),
-      fingerDeployWait_(0.5) {
+      fingerDeployWait_(0.5),
+      offset_(offset) {
     blockedDuration_ = 5.;
 }
 ActionPtr ExcavationAction::run(Robot& robot) {
     switch (state_) {
         case IDLE:
-            robot.locomotion.goToPointHolonomic(PointOriented(square_->location() + Point(0., 60.), -150. * M_PI / 180.));
+            robot.locomotion.goToPointHolonomic(PointOriented(square_->location() + Point(offset_, 60.), -150. * M_PI / 180.));
             state_ = APPROACHING;
             break;
         case APPROACHING:
