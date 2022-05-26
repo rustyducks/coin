@@ -142,12 +142,15 @@ Speed Locomotion::run(const double dt) {
             break;
     }
     if (std::isnan(outputSpeed.vx())) {
+        std::cout << "Computed speed is nan on vx !" << outputSpeed << " " << std::endl;
         outputSpeed = Speed(0., outputSpeed.vy(), outputSpeed.vtheta());
     }
     if (std::isnan(outputSpeed.vy())) {
+        std::cout << "Computed speed is nan on vy !" << outputSpeed << " " << std::endl;
         outputSpeed = Speed(outputSpeed.vx(), 0., outputSpeed.vtheta());
     }
     if (std::isnan(outputSpeed.vtheta())) {
+        std::cout << "Computed speed is nan on vtheta !" << outputSpeed << " " << std::endl;
         outputSpeed = Speed(outputSpeed.vx(), outputSpeed.vy(), 0.);
     }
     lastCommand_ = outputSpeed;
