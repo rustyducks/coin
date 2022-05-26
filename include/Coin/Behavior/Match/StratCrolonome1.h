@@ -25,7 +25,7 @@ ActionJuggler createStratCrolonome1(Robot& robot, Table& table) {
     for (int i = 6; i >= 0; i--) {
         std::cout << table.getExcavationSquare(i)->id() << ":" << i << std::endl;
         if (i == 6) {
-            excavationActionsYellow.push_back(std::make_shared<ExcavationAction>(table.getExcavationSquare(i), -30.));
+            excavationActionsYellow.push_back(std::make_shared<ExcavationAction>(table.getExcavationSquare(i), 0.));
         } else {
             excavationActionsYellow.push_back(std::make_shared<ExcavationAction>(table.getExcavationSquare(i)));
         }
@@ -33,10 +33,10 @@ ActionJuggler createStratCrolonome1(Robot& robot, Table& table) {
     for (size_t i = 3; i < 10; i++) {
         std::cout << table.getExcavationSquare(i)->id() << ":" << i << std::endl;
 
-        if (i == 3) {
+        if (i == 3 || i == 4) {
             excavationActionsPurple.push_back(std::make_shared<ExcavationAction>(table.getExcavationSquare(i), 50.));
         } else {
-            excavationActionsPurple.push_back(std::make_shared<ExcavationAction>(table.getExcavationSquare(i), 30.));
+            excavationActionsPurple.push_back(std::make_shared<ExcavationAction>(table.getExcavationSquare(i)));
         }
     }
     for (size_t i = 0; i < excavationActionsYellow.size() - 1; i++) {
