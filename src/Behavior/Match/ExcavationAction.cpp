@@ -1,8 +1,8 @@
 #include "Coin/Behavior/Match/ExcavationAction.h"
 namespace rd {
-ExcavationAction::ExcavationAction(ExcavationSquarePtr square)
-    : Action("Excavation of " + std::to_string(square->id()), std::make_shared<PointOriented>(square->location() + Point({0., 150.}), -150. * M_PI / 180.),
-             std::make_shared<PointOriented>(square->location() + Point({0., 150.}), -150. * M_PI / 180.)),
+ExcavationAction::ExcavationAction(ExcavationSquarePtr square, double offset)
+    : Action("Excavation of " + std::to_string(square->id()), std::make_shared<PointOriented>(square->location() + Point({offset, 150.}), -150. * M_PI / 180.),
+             std::make_shared<PointOriented>(square->location() + Point({offset, 150.}), -150. * M_PI / 180.)),
       state_(IDLE),
       square_(square),
       colorDetectionTimeout_(3.),

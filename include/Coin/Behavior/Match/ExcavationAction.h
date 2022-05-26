@@ -13,7 +13,7 @@ typedef std::shared_ptr<ExcavationAction> ExcavationActionPtr;
 
 class ExcavationAction : public Action {
    public:
-    ExcavationAction(ExcavationSquarePtr square);
+    ExcavationAction(ExcavationSquarePtr square, double offset = 0.);
     virtual ActionPtr run(Robot& robot) override;
     virtual void deinit(Robot& robot) override;
     virtual bool isDeinit(Robot& robot) override;
