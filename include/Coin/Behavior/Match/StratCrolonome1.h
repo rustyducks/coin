@@ -34,7 +34,7 @@ ActionJuggler createStratCrolonome1(Robot& robot, Table& table) {
         std::cout << table.getExcavationSquare(i)->id() << ":" << i << std::endl;
 
         if (i == 3) {
-            excavationActionsPurple.push_back(std::make_shared<ExcavationAction>(table.getExcavationSquare(i), 30.));
+            excavationActionsPurple.push_back(std::make_shared<ExcavationAction>(table.getExcavationSquare(i), 50.));
         } else {
             excavationActionsPurple.push_back(std::make_shared<ExcavationAction>(table.getExcavationSquare(i)));
         }
@@ -75,8 +75,8 @@ ActionJuggler createStratCrolonome1(Robot& robot, Table& table) {
                                                 PointOriented(300., 1870., 150. * M_PI / 180.), PointOriented(300., 1680., 150. * M_PI / 180.));
 
     auto exposeStatuettePurple =
-        std::make_shared<ExposeStatuetteAction>("Expose Statuette Purple", PointOriented(2830., 1680., 150. * M_PI / 180.),
-                                                PointOriented(2830., 1870., 150. * M_PI / 180.), PointOriented(2830., 1680., 150. * M_PI / 180.));
+        std::make_shared<ExposeStatuetteAction>("Expose Statuette Purple", PointOriented(2810., 1680., 150. * M_PI / 180.),
+                                                PointOriented(2810., 1870., 150. * M_PI / 180.), PointOriented(2810., 1680., 150. * M_PI / 180.));
 
     takeStatuetteYellow->setOnSuccess(exposeStatuetteYellow);
     takeStatuettePurple->setOnSuccess(exposeStatuettePurple);
