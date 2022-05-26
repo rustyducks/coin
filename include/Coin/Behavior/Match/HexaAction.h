@@ -26,7 +26,7 @@ class TakeHexaAction : public Action {
     eIntegrityCheck checkIntegrity() override;
 
    protected:
-    enum eState { IDLE, TAKING, VACUUM_ERROR, DONE };
+    enum eState { IDLE, TAKING, VACUUM_ERROR, RETRACTING, RETRACTING_VACCUM_ERROR, DONE };
     eState state_;
     Arm::ArmID armId_;
     HexaPtr hexa_;
