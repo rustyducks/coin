@@ -37,6 +37,8 @@ ActionJuggler createStratDalek1(Robot& robot, Table& table) {
 
     yellowFirstGreen->setOnSuccess(yellowFirstRed);
     purpleFirstGreen->setOnSuccess(purpleFirstRed);
+    yellowFirstGreen->setOnVacuumError(yellowFirstRed);
+    purpleFirstGreen->setOnVacuumError(purpleFirstRed);
 
     auto yellowFirstBlue = std::make_shared<TakeHexaAction>(sTakeHexaTraj({PointOriented(710., 1370., 0.), false, false}),
                                                             sTakeHexaTraj({PointOriented(600., 1370., M_PI / 2.), true, false}), Arm::ARM_1,
@@ -47,14 +49,24 @@ ActionJuggler createStratDalek1(Robot& robot, Table& table) {
 
     yellowFirstRed->setOnSuccess(yellowFirstBlue);
     purpleFirstRed->setOnSuccess(purpleFirstBlue);
+    yellowFirstRed->setOnVacuumError(yellowFirstBlue);
+    purpleFirstRed->setOnVacuumError(purpleFirstBlue);
+
+    auto gallerySwitcherYellow = std::make_shared<GallerySwitcher>("Yellow Gallery Switcher");
+    auto gallerySwitcherPurple = std::make_shared<GallerySwitcher>("Purple Gallery Switcher");
+
+    yellowFirstBlue->setOnSuccess(gallerySwitcherYellow);
+    purpleFirstBlue->setOnSuccess(gallerySwitcherPurple);
+    yellowFirstBlue->setOnVacuumError(gallerySwitcherYellow);
+    purpleFirstBlue->setOnVacuumError(gallerySwitcherPurple);
 
     auto goToInFrontOfYellowBlue =
         std::make_shared<GoToDiffAction>("Move In Front Gallery Yellow Blue", sGoToDiffTraj({PointOriented(600., 1600., M_PI_2), false, true}));
     auto goToInFrontOfPurpleBlue =
         std::make_shared<GoToDiffAction>("Move In Front Gallery Purple Blue", sGoToDiffTraj({PointOriented(2540., 1600., M_PI_2), false, true}));
 
-    yellowFirstBlue->setOnSuccess(goToInFrontOfYellowBlue);
-    purpleFirstBlue->setOnSuccess(goToInFrontOfPurpleBlue);
+    gallerySwitcherYellow->setOnBlue(goToInFrontOfYellowBlue);
+    gallerySwitcherPurple->setOnBlue(goToInFrontOfPurpleBlue);
 
     auto dropInYellowBlue =
         std::make_shared<DropHexaInGallery>(sDropHexaTraj({PointOriented(600., 1760., M_PI / 2), false, false}),
@@ -63,13 +75,21 @@ ActionJuggler createStratDalek1(Robot& robot, Table& table) {
         std::make_shared<DropHexaInGallery>(sDropHexaTraj({PointOriented(2540., 1760., M_PI / 2), false, true}),
                                             sDropHexaTraj({PointOriented(2540., 1600., M_PI / 2), true, false}), Arm::ARM_1, table.getGallery(5));
 
+    goToInFrontOfYellowBlue->setOnSuccess(dropInYellowBlue);
+    goToInFrontOfPurpleBlue->setOnSuccess(dropInPurpleBlue);
+
+    dropInYellowBlue->setOnSuccess(gallerySwitcherYellow);
+    dropInPurpleBlue->setOnSuccess(gallerySwitcherPurple);
+    dropInYellowBlue->setOnFailure(gallerySwitcherYellow);
+    dropInPurpleBlue->setOnFailure(gallerySwitcherPurple);
+
     auto goToInFrontOfYellowRed =
         std::make_shared<GoToDiffAction>("Move In Front Gallery Yellow Red", sGoToDiffTraj({PointOriented(1080., 1600., M_PI_2), false, true}));
     auto goToInFrontOfPurpleRed =
         std::make_shared<GoToDiffAction>("Move In Front Gallery Purple Red", sGoToDiffTraj({PointOriented(2060., 1600., M_PI_2), false, true}));
 
-    dropInYellowBlue->setOnSuccess(goToInFrontOfYellowRed);
-    dropInPurpleBlue->setOnSuccess(goToInFrontOfPurpleRed);
+    gallerySwitcherYellow->setOnRed(goToInFrontOfYellowRed);
+    gallerySwitcherPurple->setOnRed(goToInFrontOfPurpleRed);
 
     auto dropInYellowRed =
         std::make_shared<DropHexaInGallery>(sDropHexaTraj({PointOriented(1080., 1760., M_PI / 2), false, false}),
@@ -81,13 +101,18 @@ ActionJuggler createStratDalek1(Robot& robot, Table& table) {
     goToInFrontOfYellowRed->setOnSuccess(dropInYellowRed);
     goToInFrontOfPurpleRed->setOnSuccess(dropInPurpleRed);
 
+    dropInYellowRed->setOnSuccess(gallerySwitcherYellow);
+    dropInPurpleRed->setOnSuccess(gallerySwitcherPurple);
+    dropInYellowRed->setOnFailure(gallerySwitcherYellow);
+    dropInPurpleRed->setOnFailure(gallerySwitcherPurple);
+
     auto goToInFrontOfYellowGreen =
         std::make_shared<GoToDiffAction>("Move In Front Gallery Yellow Green", sGoToDiffTraj({PointOriented(840., 1600., M_PI_2), false, true}));
     auto goToInFrontOfPurpleGreen =
         std::make_shared<GoToDiffAction>("Move In Front Gallery Purple Green", sGoToDiffTraj({PointOriented(2300., 1600., M_PI_2), false, true}));
 
-    dropInYellowRed->setOnSuccess(goToInFrontOfYellowGreen);
-    dropInPurpleRed->setOnSuccess(goToInFrontOfPurpleGreen);
+    gallerySwitcherYellow->setOnGreen(goToInFrontOfYellowGreen);
+    gallerySwitcherPurple->setOnGreen(goToInFrontOfPurpleGreen);
 
     auto dropInYellowGreen =
         std::make_shared<DropHexaInGallery>(sDropHexaTraj({PointOriented(840., 1760., M_PI / 2), false, false}),
@@ -99,6 +124,11 @@ ActionJuggler createStratDalek1(Robot& robot, Table& table) {
     goToInFrontOfYellowGreen->setOnSuccess(dropInYellowGreen);
     goToInFrontOfPurpleGreen->setOnSuccess(dropInPurpleGreen);
 
+    dropInYellowGreen->setOnSuccess(gallerySwitcherYellow);
+    dropInPurpleGreen->setOnSuccess(gallerySwitcherPurple);
+    dropInYellowGreen->setOnFailure(gallerySwitcherYellow);
+    dropInPurpleGreen->setOnFailure(gallerySwitcherPurple);
+
     /*auto firstBlueTofirstGreenYellow = [](const PointOriented&) { return std::shared_ptr<Path>(new Path({{725., 1535., -1.5}})); };
     auto firstBlueTofirstGreenPurple = [](const PointOriented& robotPose) {
         return std::make_shared<Path>(Path::cubicBezier(robotPose, {2275., 1535.}, robotPose, {2275., 1535., -1.5}, 50));
@@ -108,10 +138,15 @@ ActionJuggler createStratDalek1(Robot& robot, Table& table) {
     Purple Green")); yellowFirstBlue->setOnSuccess(yellowFirstGreen); purpleFirstBlue->setOnSuccess(purpleFirstGreen);
     */
 
-    auto endMatch = std::make_shared<EndMatchAction>();
+    // auto freePathForCroYellow = std::make_shared<GoToDiffAction>("Free Path Cro Yellow", sGoToDiffTraj({PointOriented(860., 1600., M_PI_2), false, true}));
+    // auto freePathForCroPurple = std::make_shared<GoToDiffAction>("Free Path Cro Purple", sGoToDiffTraj({PointOriented(2140., 1600., M_PI_2), false, true}));
 
-    dropInYellowGreen->setOnSuccess(endMatch);
-    dropInPurpleGreen->setOnSuccess(endMatch);
+    auto endMatch = std::make_shared<EndMatchAction>();
+    gallerySwitcherYellow->setOnSuccess(endMatch);
+    gallerySwitcherPurple->setOnSuccess(endMatch);
+
+    // freePathForCroYellow->setOnSuccess(endMatch);
+    // freePathForCroPurple->setOnSuccess(endMatch);
 
     juggler.setAlmostEndMatchPoints({200., 1600., 0.}, {2800., 1600., M_PI});
     juggler.setOvertimeAction(endMatch);
