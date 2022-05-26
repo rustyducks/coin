@@ -121,7 +121,7 @@ Speed Locomotion::run(const double dt) {
             if (correctedLinearSpeed < computedSpeed.linearSpeed() * 0.95) {
                 goToPointHolonomic_.slowedDown();
             }
-            if (minX <= tubeInnerLength * 1.15 && std::abs(computedSpeed.vtheta()) < parameters_.minRotationalSpeed) {
+            if (minX <= tubeInnerLength * 0.95 && std::abs(computedSpeed.vtheta()) < parameters_.minRotationalSpeed) {
                 if (!robotBlocked_) {
                     robotBlocked_ = true;
                     robotBlockedSince_ = std::chrono::steady_clock::now();
@@ -129,7 +129,7 @@ Speed Locomotion::run(const double dt) {
                 }
                 outputSpeed = Speed(0., 0., 0.);
             } else {
-                if (robotBlocked_ && minX >= tubeInnerLength * 1.20) {
+                if (robotBlocked_ && minX >= tubeInnerLength * 1.10) {
                     robotBlocked_ = false;
                     std::cout << "[Locomotion] Robot is free again" << std::endl;
                 }
