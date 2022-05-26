@@ -70,6 +70,12 @@ ActionJuggler createStratCrolonome1(Robot& robot, Table& table) {
     avoidDebug1->setOnSuccess(takeStatuetteYellow);
     preMatch->setOnStartPurple(takeStatuettePurple);*/
 
+    auto waitForDalekYellow = std::make_shared<WaitForMatchTimeAction>("Wait for Dalek Yellow", 60.);
+    auto waitForDalekPurple = std::make_shared<WaitForMatchTimeAction>("Wait for Dalek Purple", 60.);
+
+    takeStatuetteYellow->setOnSuccess(waitForDalekYellow);
+    takeStatuettePurple->setOnSuccess(waitForDalekPurple);
+
     auto exposeStatuetteYellow =
         std::make_shared<ExposeStatuetteAction>("Expose Statuette Yellow", PointOriented(300., 1680., 150. * M_PI / 180.),
                                                 PointOriented(300., 1870., 150. * M_PI / 180.), PointOriented(300., 1680., 150. * M_PI / 180.));
@@ -78,8 +84,8 @@ ActionJuggler createStratCrolonome1(Robot& robot, Table& table) {
         std::make_shared<ExposeStatuetteAction>("Expose Statuette Purple", PointOriented(2810., 1680., 150. * M_PI / 180.),
                                                 PointOriented(2810., 1870., 150. * M_PI / 180.), PointOriented(2810., 1680., 150. * M_PI / 180.));
 
-    takeStatuetteYellow->setOnSuccess(exposeStatuetteYellow);
-    takeStatuettePurple->setOnSuccess(exposeStatuettePurple);
+    waitForDalekYellow->setOnTime(exposeStatuetteYellow);
+    waitForDalekPurple->setOnTime(exposeStatuettePurple);
 
     auto goToBercailYellow = std::make_shared<GoToAction>("Go To Bercail Yellow", PointOriented(200., 1000., 0.));
     auto goToBercailPurple = std::make_shared<GoToAction>("Go To Bercail Purple", PointOriented(2800., 1000., M_PI));
